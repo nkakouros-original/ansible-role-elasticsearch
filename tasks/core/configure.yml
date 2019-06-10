@@ -1,0 +1,45 @@
+---
+
+- name: Create elasticsearch.yml
+  copy:
+    content: >-
+      {{
+        elastic_combined_config
+        | to_nice_yaml(indent=2, explicit_start=True)
+      }}
+    dest: /etc/elasticsearch/elasticsearch.yml
+    owner: "{{ elastic_user }}"
+    group: "{{ elastic_group }}"
+    mode: 0o660
+  notify: elastic restart service
+
+- name: Set the minimum heap size for java virtual machine
+  lineinfile:
+    regexp: '^-Xms'
+    line: "-Xms{{ elastic_jvm_min_heap_size }}"
+    path: /etc/elasticsearch/jvm.options
+  notify: elastic restart service
+
+- name: Set the maximum heap size for java virtual machine
+  lineinfile:
+    path: /etc/elasticsearch/jvm.options
+    regexp: '^-Xmx'
+    line: "-Xmx{{ elastic_jvm_max_heap_size }}"
+  notify: elastic restart service
+
+- name: Add further custom JVM configuration
+  blockinfile:
+    path: /etc/elasticsearch/jvm.options
+    block: "{{ elastic_jvm_extra_config }}"
+  when: elastic_jvm_extra_config != None
+  notify: elastic restart service
+
+- name: Create systemd override file
+  copy:
+    content: "{{ elastic_systemd_override }}"
+    dest: /etc/systemd/system/elasticsearch.service.d/override.conf
+    owner: root
+    group: root
+    mode: 644
+  when: elastic_systemd_override != None
+  notify: elastic restart service

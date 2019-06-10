@@ -1,0 +1,42 @@
+---
+
+- name: Delete certificate folder if renewing certificates
+  file:
+    path: /etc/elasticsearch/certs
+    state: absent
+  when: elastic_certificates_renew | bool
+
+- name: Create certificate folder
+  file:
+    path: /etc/elasticsearch/certs
+    state: directory
+    owner: root
+    group: "{{ elastic_group }}"
+    mode: 0o750
+
+- name: Upload certificate generation configuration file
+  copy:
+    content:
+      "{{ elastic_certificates_config | to_nice_yaml(indent=2) }}"
+    dest: /etc/elasticsearch/certs/elasticsearch-certutil.yml
+    mode: 0o640
+    owner: root
+    group: "{{ elastic_group }}"
+
+- name: Create a CA
+  command: >-
+    {{
+      elastic_certificate_ca_command
+      | default(_elastic_certificate_ca_command, true)
+    }}
+  args:
+    creates: /etc/elasticsearch/certs/elastic-stack-ca.p12
+
+- name: Generate the certificates
+  command: >-
+    {{
+      elastic_certificate_cert_command
+      | default(_elastic_certificate_cert_command, true)
+    }}
+  args:
+    creates: /etc/elasticsearch/certs/elasticsearch-certs.zip

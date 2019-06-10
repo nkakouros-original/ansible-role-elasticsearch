@@ -1,0 +1,22 @@
+---
+
+- name: Install apt-transport-https
+  apt:
+    name: apt-transport-https
+
+- name: Add Elasticsearch Signing Key
+  apt_key:
+    url: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+
+- name: Add elastic repository
+  apt_repository:
+    repo: "deb https://artifacts.elastic.co/packages/{{
+              elastic_major_version }}.x/apt stable main"
+
+- name: Install elastic search
+  apt:
+    name: "{{ packages }}"
+    update_cache: true
+  vars:
+    packages:
+      - elasticsearch

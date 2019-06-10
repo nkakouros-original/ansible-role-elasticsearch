@@ -1,0 +1,18 @@
+---
+
+- name: Create certificate folder
+  file:
+    path: /etc/elasticsearch/certs
+    state: directory
+    owner: root
+    group: "{{ elastic_group }}"
+    mode: 0o750
+
+- name: Upload certificates
+  copy:
+    src: "{{ elastic_certificate_file }}"
+    dest: "{{ elastic_certificate_path }}"
+    owner: root
+    group: "{{ elastic_group }}"
+    mode: 0o640
+  notify: elastic restart service

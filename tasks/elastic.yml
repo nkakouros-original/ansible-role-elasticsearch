@@ -1,0 +1,31 @@
+---
+
+- include_tasks: variables.yml
+
+- include_tasks: assertions.yml
+
+- include_tasks: core/system.yml
+
+- include_tasks: "core/install/{{ ansible_os_family }}.yml"
+
+- include_tasks: core/configure.yml
+
+- include_tasks: core/keystore.yml
+
+- include_tasks: certificates/generate.yml
+  when: elastic_certificates_generate | bool
+
+- include_tasks: certificates/download.yml
+  when: elastic_certificates_generate | bool
+
+- include_tasks: certificates/upload.yml
+  when: elastic_certificate_file != None
+
+- include_tasks: certificates/keystore.yml
+  when: elastic_certificate_file != None
+
+- include_tasks: core/service.yml
+
+- include_tasks: core/builtin-users.yml
+
+- include_tasks: realms/native.yml

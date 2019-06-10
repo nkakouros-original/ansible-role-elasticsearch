@@ -1,0 +1,4 @@
+---
+
+- include_tasks: elastic.yml
+  when: elastic_enabled | bool

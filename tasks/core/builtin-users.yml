@@ -1,0 +1,27 @@
+---
+
+- name: Set random passwords for builtin users
+  shell: >-
+    echo y |
+    /usr/share/elasticsearch/bin/elasticsearch-setup-passwords auto
+  register: _elastic_builtin_users
+  failed_when:
+    - _elastic_builtin_users is failed
+    - _elastic_builtin_users.stdout is not search('Failed to verify bootstrap password')
+  changed_when: _elastic_builtin_users is not failed
+
+- name: Save built-in users new passwords locally
+  copy:
+    content: >-
+      {{
+        _elastic_builtin_users.stdout_lines
+        | select('regex', '^PASSWORD')
+        | map('regex_replace', '^PASSWORD ([^\s]+) = ([\^s]+)', '\1')
+        | list
+        | to_nice_yaml
+      }}
+    dest: "{{ elastic_builtin_users_password_file }}"
+  when:
+    - elastic_builtin_users_password_file != None
+    - _elastic_builtin_users is not failed
+  delegate_to: localhost

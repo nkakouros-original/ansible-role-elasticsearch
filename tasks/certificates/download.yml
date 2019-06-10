@@ -1,0 +1,28 @@
+---
+
+- name: Create download dir
+  file:
+    path: "{{ elastic_certificate_download_dir }}"
+    state: directory
+  delegate_to: localhost
+
+- name: Download certificates
+  fetch:
+    src: "{{ item }}"
+    dest: "{{ elastic_certificate_download_dir }}/"
+    flat: true
+  loop:
+    - /etc/elasticsearch/certs/elastic-stack-ca.p12
+    - /etc/elasticsearch/certs/elasticsearch-certs.zip
+  when: elastic_certificate_download | bool
+
+- name: Extract the zip containing the certificates
+  unarchive:
+    src: "{{ elastic_certificate_download_dir }}/elasticsearch-certs.zip"
+    dest: "{{ elastic_certificate_download_dir }}"
+    remote_src: true
+    list_files: true
+  when:
+    - elastic_certificate_download | bool
+    - elastic_certificate_download_extract | bool
+  delegate_to: localhost

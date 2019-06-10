@@ -1,0 +1,45 @@
+---
+
+# Elasticsearch configuration defaults
+_elastic_config_defaults:
+  http:
+    host: "{{ elastic_bind_host }}"
+    port: "{{ elastic_bind_port }}"
+  transport:
+    host: "{{ elastic_transport_host }}"
+  cluster:
+    name: "{{ elastic_cluster_name }}"
+    initial_master_nodes: "{{ elastic_cluster_initial_master_nodes }}"
+  node:
+    name: "{{ elastic_node_name }}"
+    master: "{{ elastic_master_node }}"
+    data: "{{ elastic_data_node }}"
+    ingest: "{{ elastic_ingest_node }}"
+  discovery:
+    seed_providers:
+      - settings
+    seed_hosts:
+      - 127.0.0.1
+  path:
+    data: /var/lib/elasticsearch
+    logs: /var/log/elasticsearch
+  xpack:
+    security:
+      enabled: true
+
+_elastic_certificate_ca_command: >-
+  /usr/share/elasticsearch/bin/elasticsearch-certutil
+    ca
+    --silent
+    --out /etc/elasticsearch/certs/elastic-stack-ca.p12
+    --pass {{ elastic_certificates_password }}
+
+_elastic_certificate_cert_command: >-
+    /usr/share/elasticsearch/bin/elasticsearch-certutil
+      {{ elastic_certificates_generate_csr | ternary('csr', 'cert') }}
+      --silent
+      --in /etc/elasticsearch/certs/elasticsearch-certutil.yml
+      --out /etc/elasticsearch/certs/elasticsearch-certs.zip
+      --ca /etc/elasticsearch/certs/elastic-stack-ca.p12
+      --pass {{ elastic_certificates_password }}
+      --ca-pass {{ elastic_certificates_password }}

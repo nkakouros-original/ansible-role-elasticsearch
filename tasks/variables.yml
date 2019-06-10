@@ -1,0 +1,6 @@
+---
+
+- name: Merge user conf with defaults
+  set_fact:
+    elastic_combined_config:
+      "{{ _elastic_config_defaults | combine(elastic_config, recursive=True) }}"
