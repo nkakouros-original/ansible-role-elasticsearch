@@ -1,48 +1,114 @@
-Role Name
+ansible-role-elasticsearch
 =========
 
-A brief description of the role goes here.
+Installs and configures Elasticsearch
+
+This role will:
+
+- install Elasticsearch
+- configure Elasticsearch
+- create TLS certificates
+- set passwords for built-in users
 
 Requirements
 ------------
 
-Any pre-requisites that may not be covered by Ansible itself or the role should
-be mentioned here. For instance, if the role uses the EC2 module, it may be a
-good idea to mention in this section that the boto package is required.
+None
 
 Role Variables
 --------------
 
-A description of the settable variables for this role should go here, including
-any variables that are in defaults/main.yml, vars/main.yml, and any variables
-that can/should be set via parameters to the role. Any variables that are read
-from other roles and/or the global scope (ie. hostvars, group vars, etc.) should
-be mentioned here as well.
+Look at the defaults/main.yml file for this roles variables and their
+documentation.
+
+By default, the role will install Elasticsearch, create and download
+certificates, set random passwords for built-in users and start Elasticsearch as
+a master, data and ingest node.
 
 Dependencies
 ------------
 
-A list of other roles hosted on Galaxy should go here, plus any details in
-regards to parameters that may need to be set for other roles, or variables that
-are used from other roles.
+None
+
+Comparison with other roles
+---------------------------
+
+Before creating this role, I tried to use for my projects the following two
+roles:
+
+- https://github.com/geerlingguy/ansible-role-elasticsearch
+- https://github.com/elastic/ansible-elasticsearch
+
+However, they were not fit for my needs. The first one is too simple and any PRs
+to add functionality will most likely be stuck in the PR queue for months if not
+years. The second one is too messy for me with old and hard to read ansible
+code, a lot of bulk from previous versions and confusing documentation.
 
 Example Playbook
 ----------------
 
-Including an example of how to use your role (for instance, with variables
-passed in as parameters) is always nice for users too:
+```yaml
+- hosts: elastic-server
+  roles:
+    - reallyenglish.apt-repo
+    - geerlingguy.java
+    - nkakouros.elasticsearch  # this role
+  vars:
+    apt_repo_to_add:
+      - ppa:webupd8team/java
+    java_packages:
+      - openjdk-8-jre
+    elastic_cluster_name: watchmen
+    elastic_node_name: nite-owl
+    elastic_jvm_extra_config: |
+      -Des.enforce.bootstrap.checks=true
+    elastic_certificates_config:
+      instances:
+        - name: all
+    elastic_certificate_download_dir: ~/Projects/elastic-server/
+    elastic_certificate_file:
+      "{{ elastic_certificate_download_dir }}/all/all.p12"
+    elastic_certificates_password: 'secret-pass'
+    elastic_builtin_users_password_file:
+      "{{ elastic_certificate_download_dir }}/elastic_passwords"
+    elastic_transport_host: _site_
+    elastic_config:
+      xpack:
+        security:
+          enabled: true
+          hide_settings: 'xpack.security.authc.realms.native.*'
+          authc:
+            accept_default_password: false
+            realms:
+              native:
+                native1:
+                  enabled: true
+                  order: 0
+          transport:
+            ssl:
+              enabled: true
+              verification_mode: certificate
+              keystore:
+                path: "{{ elastic_certificate_path }}"  # role variable from `defaults.yml`
+              truststore:
+                path: "{{ elastic_certificate_path }}"
+          http:
+            ssl:
+              enabled: true
+              verification_mode: certificate
+              keystore:
+                path: "{{ elastic_certificate_path }}"
+              truststore:
+                path: "{{ elastic_certificate_path }}"
 
-    - hosts: servers
-      roles:
-         - { role: ansible/roles/services/nkakouros.elasticsearch, x: 42 }
+```
 
 License
 -------
 
-BSD
+GPLv3
 
 Author Information
 ------------------
 
-An optional section for the role authors to include contact information, or a
-website (HTML is not allowed).
+Nikolaos Kakouros (nkak@kth.se)
