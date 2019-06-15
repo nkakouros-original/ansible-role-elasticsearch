@@ -40,6 +40,6 @@
     dest: /etc/systemd/system/elasticsearch.service.d/override.conf
     owner: root
     group: root
-    mode: 644
+    mode: 0o644
   when: elastic_systemd_override != None
   notify: elastic restart service

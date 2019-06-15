@@ -2,8 +2,11 @@
 
 - name: Set random passwords for builtin users
   shell: >-
+    set -o pipefail;
     echo y |
     /usr/share/elasticsearch/bin/elasticsearch-setup-passwords auto
+  args:
+    executable: /bin/bash
   register: _elastic_builtin_users
   failed_when:
     - _elastic_builtin_users is failed
@@ -23,5 +26,5 @@
     dest: "{{ elastic_builtin_users_password_file }}"
   when:
     - elastic_builtin_users_password_file != None
-    - _elastic_builtin_users is not failed
+    - _elastic_builtin_users is changed
   delegate_to: localhost

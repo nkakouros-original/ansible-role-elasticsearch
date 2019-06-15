@@ -1,7 +1,12 @@
+[![Build Status](https://travis-ci.com/nkakouros-original/ansible-role-elasticsearch.svg?branch=master)](https://travis-ci.com/nkakouros-original/ansible-role-elasticsearch)
+
 ansible-role-elasticsearch
 =========
 
-Installs and configures Elasticsearch
+Installs and configures Elasticsearch.
+
+Description
+-----------
 
 This role will:
 
@@ -18,7 +23,7 @@ None
 Role Variables
 --------------
 
-Look at the defaults/main.yml file for this roles variables and their
+Look at the [defaults/main.yml](defaults/main.yml) file for this roles variables and their
 documentation.
 
 By default, the role will install Elasticsearch, create and download

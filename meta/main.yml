@@ -1,6 +1,7 @@
 ---
 
 galaxy_info:
+  role_name: elasticsearch
   author: Nikolaos Kakouros
   description: Installs and configures elasticsearch
   license: GPLv3
@@ -11,10 +12,6 @@ galaxy_info:
       versions:
         - bionic
         - xenial
-    - name: Debian
-      versions:
-        - 9
-        - 8
 
   galaxy_tags:
     - elasticsearch

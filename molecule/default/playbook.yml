@@ -1,5 +1,47 @@
 ---
+
 - name: Converge
   hosts: all
   roles:
-    - role: ansible/roles/services/nkakouros.elasticsearch
+    - nkakouros.elasticsearch
+  vars:
+    elastic_cluster_name: watchmen
+    elastic_node_name: nite-owl
+    elastic_jvm_extra_config: |
+      -Des.enforce.bootstrap.checks=true
+    elastic_certificates_config:
+      instances:
+        - name: all
+    elastic_certificate_download_dir: '/tmp/'
+    elastic_certificate_file: "{{ elastic_certificate_download_dir }}/all/all.p12"
+    elastic_certificates_password: 'secret-password'
+    elastic_builtin_users_password_file: elastic-passwords
+    elastic_transport_host: _site_
+    elastic_config:
+      xpack:
+        security:
+          enabled: true
+          hide_settings: 'xpack.security.authc.realms.native.*'
+          authc:
+            accept_default_password: false
+            realms:
+              native:
+                native1:
+                  enabled: true
+                  order: 0
+          transport:
+            ssl:
+              enabled: true
+              verification_mode: certificate
+              keystore:
+                path: "{{ elastic_certificate_path }}"
+              truststore:
+                path: "{{ elastic_certificate_path }}"
+          http:
+            ssl:
+              enabled: true
+              verification_mode: certificate
+              keystore:
+                path: "{{ elastic_certificate_path }}"
+              truststore:
+                path: "{{ elastic_certificate_path }}"

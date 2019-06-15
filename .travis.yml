@@ -4,22 +4,26 @@ language: python
 python: "2.7"
 
 env:
-  - MOLECULE_DISTRO=ubuntu1604
-  - MOLECULE_DISTRO=ubuntu1804
-  - MOLECULE_DISTRO=debian8 MOLECULE_INIT_CMD=/lib/systemd/systemd
-  - MOLECULE_DISTRO=debian9 MOLECULE_INIT_CMD=/lib/systemd/systemd
-  # - MOLECULE_DISTRO=centos6 MOLECULE_INIT_CMD=/lib/systemd/systemd
-  # - MOLECULE_DISTRO=centos7 MOLECULE_INIT_CMD=/lib/systemd/systemd
+  global:
+    - ROLE_NAME: elasticsearch
+  matrix:
+    - MOLECULE_DISTRO=ubuntu1604
+    - MOLECULE_DISTRO=ubuntu1804
+    # - MOLECULE_DISTRO=debian8 MOLECULE_INIT_CMD=/lib/systemd/systemd
+    # - MOLECULE_DISTRO=debian9 MOLECULE_INIT_CMD=/lib/systemd/systemd
+    # - MOLECULE_DISTRO=centos6 MOLECULE_INIT_CMD=/lib/systemd/systemd
+    # - MOLECULE_DISTRO=centos7 MOLECULE_INIT_CMD=/lib/systemd/systemd
 
-install:
-  - pip install docker molecule
-  - ansible-galaxy install geerlingguy.java reallyenglish.apt-repo
-
-before_script:
-  # Use actual Ansible Galaxy role name for the project directory.
+before_install:
   - cd ../
   - mv ansible-role-$ROLE_NAME nkakouros.$ROLE_NAME
   - cd nkakouros.$ROLE_NAME
 
+install:
+  - pip install docker molecule
+
 script:
   - molecule test
+
+notifications:
+  webhooks: https://galaxy.ansible.com/api/v1/notifications/

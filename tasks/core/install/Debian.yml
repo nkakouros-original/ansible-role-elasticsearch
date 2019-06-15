@@ -13,7 +13,7 @@
     repo: "deb https://artifacts.elastic.co/packages/{{
               elastic_major_version }}.x/apt stable main"
 
-- name: Install elastic search
+- name: Install Elasticsearch
   apt:
     name: "{{ packages }}"
     update_cache: true

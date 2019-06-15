@@ -20,5 +20,6 @@ provisioner:
     name: ansible-lint
 verifier:
   name: testinfra
+  enabled: false
   lint:
     name: flake8
