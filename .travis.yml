@@ -13,6 +13,13 @@ env:
 
 install:
   - pip install docker molecule
+  - ansible-galaxy install geerlingguy.java reallyenglish.apt-repo
+
+before_script:
+  # Use actual Ansible Galaxy role name for the project directory.
+  - cd ../
+  - mv ansible-role-$ROLE_NAME nkakouros.$ROLE_NAME
+  - cd nkakouros.$ROLE_NAME
 
 script:
   - molecule test
