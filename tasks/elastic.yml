@@ -19,10 +19,12 @@
   when: elastic_certificates_generate | bool
 
 - include_tasks: certificates/upload.yml
-  when: elastic_certificate_file != None
+  when: elastic_certificate_files != None
 
 - include_tasks: certificates/keystore.yml
-  when: elastic_certificate_file != None
+  when:
+    - elastic_certificates_password != None
+    - elastic_certificate_files != None
 
 - include_tasks: core/service.yml
 

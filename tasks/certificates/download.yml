@@ -12,16 +12,19 @@
     dest: "{{ elastic_certificate_download_dir }}/"
     flat: true
   loop:
-    - /etc/elasticsearch/certs/elastic-stack-ca.p12
+    - /etc/elasticsearch/certs/elastic-stack-ca.zip
     - /etc/elasticsearch/certs/elasticsearch-certs.zip
   when: elastic_certificate_download | bool
 
 - name: Extract the zip containing the certificates
   unarchive:
-    src: "{{ elastic_certificate_download_dir }}/elasticsearch-certs.zip"
+    src: "{{ item }}"
     dest: "{{ elastic_certificate_download_dir }}"
     remote_src: true
     list_files: true
+  loop:
+    - "{{ elastic_certificate_download_dir }}/elasticsearch-certs.zip"
+    - "{{ elastic_certificate_download_dir }}/elastic-stack-ca.zip"
   when:
     - elastic_certificate_download | bool
     - elastic_certificate_download_extract | bool

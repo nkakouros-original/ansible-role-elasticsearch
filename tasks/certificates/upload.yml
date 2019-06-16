@@ -10,9 +10,10 @@
 
 - name: Upload certificates
   copy:
-    src: "{{ elastic_certificate_file }}"
-    dest: "{{ elastic_certificate_path }}"
+    src: "{{ item.value }}"
+    dest: "{{ elastic_certificate_path }}/{{ item.value | basename }}"
     owner: root
     group: "{{ elastic_group }}"
     mode: 0o640
+  loop: "{{ elastic_certificate_files | dict2items }}"
   notify: elastic restart service

@@ -35,7 +35,7 @@ elastic_systemd_override: ~
 elastic_builtin_users_set_random_passwords: true
 # Set to true to set random passwords for the built-in users
 
-elastic_builtin_users_password_file: ~
+elastic_builtin_users_password_backup_file: ~
 # Set to a path on the ansible controller where the new passwords for the
 # builtin users will be saved in. The records will be in a `user:pass` format,
 # ready to be used in curl. If you leave this variable None, the new passwords
@@ -61,7 +61,7 @@ elastic_certificates_generate_csr: false
 # Whether to generate certificate signing requests instead of ready-to-use
 # certificates together with their CA.
 
-elastic_certificates_password: '""'
+elastic_certificates_password: ~
 # The password to use to protect the generated private keys. Leave empty to set
 # the empty string as the password. Certificates do need to have a password even
 # if it is blank.
@@ -95,14 +95,17 @@ elastic_certificate_download_extract: true
 # Whether to extract the zip containing the certificates when downloaded on
 # the ansible controller.
 
-elastic_certificate_file: ~
+elastic_certificate_files: ~
 # Use this variable to point to a certificate file on the ansible controller
 # that should be uploaded to the elasticsearch node and be used as the
-# certificate for that node. The file will be renamed online as
-# `elastic-certificates.p12`.
+# certificate for that node. Eg:
+# elastic_certificate_files:
+#   ca: path/to/ca.cert
+#   cert: path/to/node/cert
+#   key: path/to/node/key
 
-elastic_certificate_path: /etc/elasticsearch/certs/elastic-certificates.p12
-# The path where `elastic_certificate_file` will be uploaded to.
+elastic_certificate_path: /etc/elasticsearch/certs/
+# The path where `elastic_certificate_files` will be uploaded to.
 
 elastic_certificate_password_renew: false
 # When uploading a certificate to a node, its password will be stored to the

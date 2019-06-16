@@ -30,7 +30,16 @@
       | default(_elastic_certificate_ca_command, true)
     }}
   args:
-    creates: /etc/elasticsearch/certs/elastic-stack-ca.p12
+    creates: /etc/elasticsearch/certs/elastic-stack-ca.zip
+
+- name: Extract CA zip
+  unarchive:
+    src: /etc/elasticsearch/certs/elastic-stack-ca.zip
+    dest: /etc/elasticsearch/certs/
+    remote_src: true
+    mode: 0o0640
+    owner: root
+    group: "{{ elastic_group }}"
 
 - name: Generate the certificates
   command: >-

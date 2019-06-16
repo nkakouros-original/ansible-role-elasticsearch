@@ -23,7 +23,7 @@
         | list
         | to_nice_yaml
       }}
-    dest: "{{ elastic_builtin_users_password_file }}"
+    dest: "{{ elastic_builtin_users_password_backup_file }}"
   when:
     - elastic_builtin_users_password_file != None
     - _elastic_builtin_users is changed

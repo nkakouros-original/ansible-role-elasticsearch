@@ -31,15 +31,21 @@ _elastic_certificate_ca_command: >-
   /usr/share/elasticsearch/bin/elasticsearch-certutil
     ca
     --silent
-    --out /etc/elasticsearch/certs/elastic-stack-ca.p12
-    --pass {{ elastic_certificates_password }}
+    --pem
+    --out /etc/elasticsearch/certs/elastic-stack-ca.zip
+    {{ '--pass ' + elastic_certificates_password
+        if elastic_certificates_password != None else '' }}
 
 _elastic_certificate_cert_command: >-
-    /usr/share/elasticsearch/bin/elasticsearch-certutil
-      {{ elastic_certificates_generate_csr | ternary('csr', 'cert') }}
-      --silent
-      --in /etc/elasticsearch/certs/elasticsearch-certutil.yml
-      --out /etc/elasticsearch/certs/elasticsearch-certs.zip
-      --ca /etc/elasticsearch/certs/elastic-stack-ca.p12
-      --pass {{ elastic_certificates_password }}
-      --ca-pass {{ elastic_certificates_password }}
+  /usr/share/elasticsearch/bin/elasticsearch-certutil
+    {{ elastic_certificates_generate_csr | ternary('csr', 'cert') }}
+    --silent
+    --pem
+    --in /etc/elasticsearch/certs/elasticsearch-certutil.yml
+    --out /etc/elasticsearch/certs/elasticsearch-certs.zip
+    --ca-cert /etc/elasticsearch/certs/ca/ca.crt
+    --ca-key /etc/elasticsearch/certs/ca/ca.key
+    {{ '--ca-pass ' + elastic_certificates_password
+        if elastic_certificates_password != None else '' }}
+    {{ '--pass ' + elastic_certificates_password
+        if elastic_certificates_password != None else '' }}
