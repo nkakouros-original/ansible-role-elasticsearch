@@ -21,9 +21,9 @@
         | select('regex', '^PASSWORD')
         | map('regex_replace',
               '^PASSWORD ([^\s]+) = ([^\s]+)',
-              '{"name": \1, "password": \2}')
+              '{"name": "\1", "password": "\2"}')
         | list
-        | to_nice_yaml
+        | replace("'", '')
       }}
     dest: "{{ elastic_builtin_users_password_backup_file }}"
   when:

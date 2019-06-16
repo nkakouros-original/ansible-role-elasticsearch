@@ -27,10 +27,11 @@ elastic_builtin_users_set_random_passwords: true
 
 elastic_builtin_users_password_backup_file: ~
 # Set to a path on the ansible controller where the new passwords for the
-# builtin users will be saved in. The records will be in a `user:pass` format,
-# ready to be used in curl. If you leave this variable None, the new passwords
-# will be only printed during provisioning and you will have no way of finding
-# them afterwards.
+# builtin users will be saved in. The records will be in a `{"name": user,
+# password: pass}` format and can be loaded into an ansible variable with the
+# `file` lookup plugin. If you leave this variable None, the new passwords will
+# be only printed during provisioning and you will have no way of finding them
+# afterwards.
 # }}}
 # Certificates {{{
 # You can use the variables in this section to generate certificates and
