@@ -13,7 +13,10 @@
       instances:
         - name: all
     elastic_certificate_download_dir: '/tmp/'
-    elastic_certificate_file: "{{ elastic_certificate_download_dir }}/all/all.p12"
+    elastic_certificate_files:
+      ca: "{{ elastic_certificate_download_dir }}/ca/ca.crt"
+      crt: "{{ elastic_certificate_download_dir }}/all/all.crt"
+      key: "{{ elastic_certificate_download_dir }}/all/all.key"
     elastic_certificates_password: 'secret-password'
     elastic_builtin_users_password_file: elastic-passwords
     elastic_transport_host: _site_
@@ -33,15 +36,12 @@
             ssl:
               enabled: true
               verification_mode: certificate
-              keystore:
-                path: "{{ elastic_certificate_path }}"
-              truststore:
-                path: "{{ elastic_certificate_path }}"
+              key: "{{ elastic_certificate_path }}/all.key"
+              certificate: "{{ elastic_certificate_path }}/all.crt"
+              certificate_authorities: "{{ elastic_certificate_path }}/ca.crt"
           http:
             ssl:
               enabled: true
-              verification_mode: certificate
-              keystore:
-                path: "{{ elastic_certificate_path }}"
-              truststore:
-                path: "{{ elastic_certificate_path }}"
+              key: "{{ elastic_certificate_path }}/all.key"
+              certificate: "{{ elastic_certificate_path }}/all.crt"
+              certificate_authorities: "{{ elastic_certificate_path }}/ca.crt"

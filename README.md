@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.com/nkakouros-original/ansible-role-elasticsearch.svg?branch=master)](https://travis-ci.com/nkakouros-original/ansible-role-elasticsearch)
+[![Galaxy](https://img.shields.io/badge/galaxy-nkakouros.elasticsearch-blue.svg)](https://galaxy.ansible.com/nkakouros/elasticsearch/)
 
 ansible-role-elasticsearch
 =========
