@@ -14,7 +14,12 @@ This role will:
 - install Elasticsearch
 - configure Elasticsearch
 - create TLS certificates
+- configure http and transport TLS
 - set passwords for built-in users
+
+Configuration happens via a yaml dict (`elastic_config`), thus every default
+configuration performed by this role can be overridden by defining the
+appropriate keys in `elastic_config`.
 
 Requirements
 ------------
@@ -71,12 +76,12 @@ Example Playbook
     elastic_certificates_config:
       instances:
         - name: all
-    elastic_certificate_download_dir: ~/Projects/elastic-server/
-    elastic_certificate_file:
-      "{{ elastic_certificate_download_dir }}/all/all.p12"
+    elastic_certificates_download_dir: ~/Projects/elastic-server/
+    elastic_certificates_file:
+      "{{ elastic_certificates_download_dir }}/all/all.p12"
     elastic_certificates_password: 'secret-pass'
     elastic_builtin_users_password_file:
-      "{{ elastic_certificate_download_dir }}/elastic_passwords"
+      "{{ elastic_certificates_download_dir }}/elastic_passwords"
     elastic_transport_host: _site_
     elastic_config:
       xpack:
@@ -90,23 +95,6 @@ Example Playbook
                 native1:
                   enabled: true
                   order: 0
-          transport:
-            ssl:
-              enabled: true
-              verification_mode: certificate
-              keystore:
-                path: "{{ elastic_certificate_path }}"  # role variable from `defaults.yml`
-              truststore:
-                path: "{{ elastic_certificate_path }}"
-          http:
-            ssl:
-              enabled: true
-              verification_mode: certificate
-              keystore:
-                path: "{{ elastic_certificate_path }}"
-              truststore:
-                path: "{{ elastic_certificate_path }}"
-
 ```
 
 License

@@ -19,12 +19,14 @@
       {{
         _elastic_builtin_users.stdout_lines
         | select('regex', '^PASSWORD')
-        | map('regex_replace', '^PASSWORD ([^\s]+) = ([\^s]+)', '\1')
+        | map('regex_replace',
+              '^PASSWORD ([^\s]+) = ([^\s]+)',
+              '{"name": \1, "password": \2}')
         | list
         | to_nice_yaml
       }}
     dest: "{{ elastic_builtin_users_password_backup_file }}"
   when:
-    - elastic_builtin_users_password_file != None
+    - elastic_builtin_users_password_backup_file != None
     - _elastic_builtin_users is changed
   delegate_to: localhost

@@ -10,7 +10,7 @@
   file:
     path: /etc/elasticsearch/certs
     state: directory
-    owner: root
+    owner: "{{ elastic_user }}"
     group: "{{ elastic_group }}"
     mode: 0o750
 
@@ -20,14 +20,14 @@
       "{{ elastic_certificates_config | to_nice_yaml(indent=2) }}"
     dest: /etc/elasticsearch/certs/elasticsearch-certutil.yml
     mode: 0o640
-    owner: root
+    owner: "{{ elastic_user }}"
     group: "{{ elastic_group }}"
 
 - name: Create a CA
   command: >-
     {{
-      elastic_certificate_ca_command
-      | default(_elastic_certificate_ca_command, true)
+      elastic_certificates_ca_command
+      | default(_elastic_certificates_ca_command, true)
     }}
   args:
     creates: /etc/elasticsearch/certs/elastic-stack-ca.zip
@@ -37,15 +37,15 @@
     src: /etc/elasticsearch/certs/elastic-stack-ca.zip
     dest: /etc/elasticsearch/certs/
     remote_src: true
-    mode: 0o0640
-    owner: root
+    mode: 0o0750
+    owner: "{{ elastic_user }}"
     group: "{{ elastic_group }}"
 
 - name: Generate the certificates
   command: >-
     {{
-      elastic_certificate_cert_command
-      | default(_elastic_certificate_cert_command, true)
+      elastic_certificates_cert_command
+      | default(_elastic_certificates_cert_command, true)
     }}
   args:
     creates: /etc/elasticsearch/certs/elasticsearch-certs.zip

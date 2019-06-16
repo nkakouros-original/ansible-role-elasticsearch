@@ -8,8 +8,6 @@
 
 - include_tasks: "core/install/{{ ansible_os_family }}.yml"
 
-- include_tasks: core/configure.yml
-
 - include_tasks: core/keystore.yml
 
 - include_tasks: certificates/generate.yml
@@ -19,12 +17,14 @@
   when: elastic_certificates_generate | bool
 
 - include_tasks: certificates/upload.yml
-  when: elastic_certificate_files != None
+  when: elastic_certificates != None
 
 - include_tasks: certificates/keystore.yml
   when:
     - elastic_certificates_password != None
-    - elastic_certificate_files != None
+    - elastic_certificates != None
+
+- include_tasks: core/configure.yml
 
 - include_tasks: core/service.yml
 

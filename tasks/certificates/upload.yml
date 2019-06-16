@@ -1,19 +1,51 @@
 ---
 
-- name: Create certificate folder
+- name: Create certificates folder
   file:
-    path: /etc/elasticsearch/certs
+    path: "{{ elastic_certificates_dir }}"
     state: directory
-    owner: root
+    owner: "{{ elastic_user }}"
     group: "{{ elastic_group }}"
     mode: 0o750
 
-- name: Upload certificates
+- name: Upload certificatess
   copy:
     src: "{{ item.value }}"
-    dest: "{{ elastic_certificate_path }}/{{ item.value | basename }}"
-    owner: root
+    dest: "{{ elastic_certificates_dir }}/{{ item.value | basename }}"
+    owner: "{{ elastic_user }}"
     group: "{{ elastic_group }}"
     mode: 0o640
-  loop: "{{ elastic_certificate_files | dict2items }}"
+  loop: "{{ elastic_certificates| dict2items }}"
   notify: elastic restart service
+
+- name: Add certificates configuration
+  set_fact:
+    elastic_combined_config: >-
+      {{
+        _elastic_certificates_config
+        | combine(elastic_combined_config, recursive=true)
+      }}
+  vars:
+    _elastic_certificates_config:
+      xpack:
+        security:
+          transport:
+            ssl:
+              enabled: true
+              verification_mode: certificate
+              key: "{{ elastic_certificates_dir }}/{{
+                        elastic_certificates.key | basename }}"
+              certificate: "{{ elastic_certificates_dir }}/{{
+                                elastic_certificates.crt | basename }}"
+              certificate_authorities: "{{ elastic_certificates_dir }}/{{
+                                    elastic_certificates.ca | basename }}"
+          http:
+            ssl:
+              enabled: true
+              verification_mode: certificate
+              key: "{{ elastic_certificates_dir }}/{{
+                        elastic_certificates.key | basename }}"
+              certificate: "{{ elastic_certificates_dir }}/{{
+                                elastic_certificates.crt | basename }}"
+              certificate_authorities: "{{ elastic_certificates_dir }}/{{
+                                      elastic_certificates.ca | basename }}"

@@ -8,28 +8,18 @@ elastic_major_version: '7'
 # The major version of elastic search to track. This will be used to add the
 # relevant repository and install the latest release for that version.
 
-elastic_user: elasticsearch
-# The user that will run elasticsearch
+elastic_user: root
+# The user that will own elasticsearch files. Elasticsearch will be run as the
+# `elasticsearch` user as defined in the systemd service file that comes with
+# the elasticsearch installation.
 
 elastic_group: elasticsearch
-# The group the elastic_user will belong to
-
-elastic_jvm_min_heap_size: 1g
-elastic_jvm_max_heap_size: 1g
-# Set the minimum and maximum JVM heap size in jvm.options
-
-elastic_jvm_extra_config: ~
-# Use this to append extra configuration directives in the jvm.options file. Eg:
-# elastic_jvm_extra_config: |
-#   -Des.networkaddress.cache.negative.ttl=10
-#
-# These directives should override any previous ones in the jvm.options file.
-
-elastic_systemd_override: ~
-# Use this to override system settings using a systemd override. Eg:
-# elastic_systemd_override: |
-#   [Service]
-#   LimitMEMLOCK=infinity
+# The group that `elasticsearch_user` will be added to. If the `kibana_user` is
+# `root`, the `root` user will not be added to this group. By default, when
+# installing elasticsearch, the configuration files are owned by user `root` and
+# group `elasticsearch`. The default behavior of the role is to replicate this,
+# while giving the option to the user to run elasticsearch as an arbitrary
+# user/group if the need to.
 # }}}
 # Security{{{
 elastic_builtin_users_set_random_passwords: true
@@ -83,31 +73,31 @@ elastic_certificates_config: ~
 #       dns:
 #         - "node1.mydomain.com"
 
-elastic_certificate_download: true
+elastic_certificates_download: true
 # Whether to download the zip file containing the generated certificates. This
 # is useful if you want to use the certificates on other nodes.
 
-elastic_certificate_download_dir: ''
+elastic_certificates_download_dir: ''
 # Where to download the zip containing the certificates on the ansible
 # controller.
 
-elastic_certificate_download_extract: true
+elastic_certificates_download_extract: true
 # Whether to extract the zip containing the certificates when downloaded on
 # the ansible controller.
 
-elastic_certificate_files: ~
+elastic_certificates: ~
 # Use this variable to point to a certificate file on the ansible controller
 # that should be uploaded to the elasticsearch node and be used as the
 # certificate for that node. Eg:
-# elastic_certificate_files:
+# elastic_certificates:
 #   ca: path/to/ca.cert
 #   cert: path/to/node/cert
 #   key: path/to/node/key
 
-elastic_certificate_path: /etc/elasticsearch/certs/
-# The path where `elastic_certificate_files` will be uploaded to.
+elastic_certificates_dir: /etc/elasticsearch/certs/
+# The folder where `elastic_certificates` will be uploaded into.
 
-elastic_certificate_password_renew: false
+elastic_certificates_password_renew: false
 # When uploading a certificate to a node, its password will be stored to the
 # elasticsearch keystore on that node. If you change the
 # `elastic_certificates_password` eg when renewing certificates, then the old
@@ -116,6 +106,23 @@ elastic_certificate_password_renew: false
 # node's keystore as well. The default here is false to support idempotency.
 # }}}
 # Configuration{{{
+elastic_jvm_min_heap_size: 1g
+elastic_jvm_max_heap_size: 1g
+# Set the minimum and maximum JVM heap size in jvm.options
+
+elastic_jvm_extra_config: ~
+# Use this to append extra configuration directives in the jvm.options file. Eg:
+# elastic_jvm_extra_config: |
+#   -Des.networkaddress.cache.negative.ttl=10
+#
+# These directives should override any previous ones in the jvm.options file.
+
+elastic_systemd_override: ~
+# Use this to override system settings using a systemd override. Eg:
+# elastic_systemd_override: |
+#   [Service]
+#   LimitMEMLOCK=infinity
+
 elastic_config: {}
 # Elastic configuration in the form of a yaml array with non-collapsed keys.
 # This will be merged with a default configuration shipped with this role. The

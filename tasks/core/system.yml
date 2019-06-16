@@ -3,9 +3,12 @@
 - name: Create elastic group
   group:
     name: "{{ elastic_group }}"
+    system: true
 
 - name: Create elastic user
   user:
     name: "{{ elastic_user }}"
     group: "{{ elastic_group }}"
     createhome: false
+    system: true
+  when: elastic_user != 'root'

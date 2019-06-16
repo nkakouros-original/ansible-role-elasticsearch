@@ -10,7 +10,7 @@
 - name: Check that elastic search has started successfully
   uri:
     url: >-
-      http{{ elastic_certificate_files != None | ternary('s', '') }}://{{
+      http{{ (elastic_certificates!= None) | ternary('s', '') }}://{{
         elastic_bind_host }}:{{
         elastic_bind_port }}
     return_content: true
