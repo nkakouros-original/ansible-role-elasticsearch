@@ -9,21 +9,32 @@
     elastic_node_name: nite-owl
     elastic_jvm_extra_config: |
       -Des.enforce.bootstrap.checks=true
+    elastic_certificates_generate: true
     elastic_certificates_config:
+      # Each component of the ELK installation will use its own certificates
       instances:
-        - name: all
-    elastic_certificates_download_dir: '/tmp/elastic'
+        - name: elastic
+          ip:
+            - "127.0.0.1"
+        - name: kibana-backend
+          ip:
+            - "127.0.0.1"
+        - name: logstash
+          ip:
+            - "35.210.0.23"
+        - name: beats
+    elastic_certificates_password: 'nk}$Q%];a3Gy$E!QvT8E'
+    elastic_certificates_download_dir: ~/elk/certs/
     elastic_certificates:
       ca: "{{ elastic_certificates_download_dir }}/ca/ca.crt"
-      crt: "{{ elastic_certificates_download_dir }}/all/all.crt"
-      key: "{{ elastic_certificates_download_dir }}/all/all.key"
-    elastic_certificates_password: 'secret-password'
-    elastic_builtin_users_password_backup_file: elastic-passwords
-    elastic_transport_host: _site_
+      crt: "{{ elastic_certificates_download_dir }}/elastic/elastic.crt"
+      key: "{{ elastic_certificates_download_dir }}/elastic/elastic.key"
+    elastic_certificates_dir: /etc/elasticsearch/certs/
+    elastic_builtin_users_set_random_passwords: true
+    elastic_builtin_users_password_backup_file: ~/elk/elastic-passwords
     elastic_config:
       xpack:
         security:
-          enabled: true
           hide_settings: 'xpack.security.authc.realms.native.*'
           authc:
             accept_default_password: false
@@ -32,3 +43,27 @@
                 native1:
                   enabled: true
                   order: 0
+    template_files:
+      # When using logstash in front of kibana and you use elastic beats to send
+      # data to logstash (which will then be forwarded to elastic), you will
+      # need to manually load the index templates that come with the elastic
+      # beats. The `nkakouros.auditbeat`, `nkakouros.packetbeat`, etc roles
+      # allow you to extract the index template into a json file. Here, we read
+      # the paths on the ansible controller where these json files are located
+      # in order for the `nkakouros.elastic` role to insert them into
+      # elasticsearch.
+      "{{ q('fileglob', '~/elk/beats/*.json') }}"
+    elastic_indexes_to_import: >-
+      [
+        {%- for file in template_files -%}
+          {
+            'file': '{{ file }}',
+            'index': '{{
+                file
+                | basename
+                | regex_replace('^([^.]+\.[0-9]+\.[0-9]+\.[0-9]+)\..*$', '\1')
+                | replace('.', '-', count=1)
+              }}'
+          },
+        {%- endfor -%}
+      ]

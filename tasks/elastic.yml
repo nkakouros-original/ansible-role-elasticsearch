@@ -26,9 +26,10 @@
 
 - include_tasks: core/configure.yml
 
-- include_tasks: core/service.yml
+- meta: flush_handlers
 
 - include_tasks: core/builtin-users.yml
+  when: elastic_builtin_users_set_random_passwords | bool
 
 - include_tasks: indexes.yml
 

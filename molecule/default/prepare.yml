@@ -5,7 +5,6 @@
   roles:
     - reallyenglish.apt-repo
     - geerlingguy.java
-    - nkakouros.elasticsearch
   vars:
     apt_repo_to_add:
       - ppa:webupd8team/java

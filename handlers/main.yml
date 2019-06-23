@@ -7,16 +7,26 @@
     daemon_reload: true
   listen: elastic restart service
 
-- name: Check that elastic search has started successfully
-  uri:
-    url: "{{ elastic_node_address }}"
-    return_content: true
-    validate_certs: false
-  register: result
-  until: result is success
-  retries: 11
-  delay: 5
-  failed_when:
-    - result is failed
-    - result.content is not search('missing authentication credentials')
-  listen: elastic restart service
+- name: Wait for errors
+  block:
+    - name: Check that elastic search has started successfully
+      uri:
+        url: "{{ elastic_node_address }}"
+        return_content: true
+        validate_certs: false
+      register: result
+      until: result is success
+      retries: 11
+      delay: 5
+      failed_when:
+        - result is failed
+        - result.content is not search('missing authentication credentials')
+      listen: elastic restart service
+  rescue:
+    - name: Get elasticsearch log
+      command: tail -n 150 /var/log/elasticsearch/{{ elastic_cluster_name }}.log
+      register: _elasticsearch_log
+    - name: Print the log
+      debug:
+        var: _elasticsearch_log
+      failed_when: true

@@ -24,7 +24,7 @@ elastic_group: elasticsearch
 # user/group if they need to.
 # }}}
 # Security{{{
-elastic_builtin_users_set_random_passwords: true
+elastic_builtin_users_set_random_passwords: false
 # Set to true to set random passwords for the built-in users
 
 elastic_builtin_users_password_backup_file: ~
@@ -41,7 +41,7 @@ elastic_builtin_users_password_backup_file: ~
 # `elastic_config` to setup TLS for the transport or http layer of
 # elasticsearch.
 
-elastic_certificates_generate: true
+elastic_certificates_generate: false
 # Whether to generate certificates for encrypted communication. If you enable
 # security (`xpack.security.enabled`), you must also configure encrypted
 # communications and user either your own certificates or use this variable to

@@ -9,13 +9,14 @@ Installs and configures Elasticsearch.
 Description
 -----------
 
-This role will:
+This role will in a configurable manner:
 
 - install Elasticsearch
 - configure Elasticsearch
 - create TLS certificates
 - configure http and transport TLS
 - set passwords for built-in users
+- sync all the above information with the ansible controller for further use
 
 Configuration happens via a yaml dict (`elastic_config`), thus every default
 configuration performed by this role can be overridden by defining the
@@ -26,20 +27,19 @@ Requirements
 
 None
 
+Dependencies
+------------
+
+None. Of course, you will need to have java installed on the target system.
+
 Role Variables
 --------------
 
 Look at the [defaults/main.yml](defaults/main.yml) file for this roles variables and their
 documentation.
 
-By default, the role will install Elasticsearch, create and download
-certificates, set random passwords for built-in users and start Elasticsearch as
-a master, data and ingest node.
-
-Dependencies
-------------
-
-None
+By default, the role will simply install Elasticsearch and start Elasticsearch
+as a master, data and ingest node.
 
 Comparison with other roles
 ---------------------------
@@ -58,44 +58,22 @@ code, a lot of bulk from previous versions and confusing documentation.
 Example Playbook
 ----------------
 
+This is a minimal playbook to have elasticsearch installed as soon as possible,
+with no certificates, for development purposes.
+
 ```yaml
 - hosts: elastic-server
   roles:
-    - reallyenglish.apt-repo
-    - geerlingguy.java
-    - nkakouros.elasticsearch  # this role
-  vars:
-    apt_repo_to_add:
-      - ppa:webupd8team/java
-    java_packages:
-      - openjdk-8-jre
-    elastic_cluster_name: watchmen
-    elastic_node_name: nite-owl
-    elastic_jvm_extra_config: |
-      -Des.enforce.bootstrap.checks=true
-    elastic_certificates_config:
-      instances:
-        - name: all
-    elastic_certificates_download_dir: ~/Projects/elastic-server/
-    elastic_certificates_file:
-      "{{ elastic_certificates_download_dir }}/all/all.p12"
-    elastic_certificates_password: 'secret-pass'
-    elastic_builtin_users_password_file:
-      "{{ elastic_certificates_download_dir }}/elastic_passwords"
-    elastic_transport_host: _site_
-    elastic_config:
-      xpack:
-        security:
-          enabled: true
-          hide_settings: 'xpack.security.authc.realms.native.*'
-          authc:
-            accept_default_password: false
-            realms:
-              native:
-                native1:
-                  enabled: true
-                  order: 0
+    - nkakouros.elasticsearch
 ```
+
+For a full example on how to configure and install a full ELK installation (from
+where you can pick what is relevant for your use case) see the
+[molecule/default/](molecule/default/) folder. In there, the
+[prepare.yml](molecule/default/prepare.yml) file contains a playbook that will
+install dependencies that this role will need. The
+[playbook.yml](molecule/default/playbook.yml) file will contain a full and
+complex example of how to use this role specifically.
 
 License
 -------

@@ -14,11 +14,11 @@
     dest: "{{ elastic_certificates_download_dir }}/"
     flat: true
     owner: "{{ lookup('env', 'USER') }}"
+    mode: 0o600
   loop:
     - /etc/elasticsearch/certs/elastic-stack-ca.zip
     - /etc/elasticsearch/certs/elasticsearch-certs.zip
   when: elastic_certificates_download | bool
-  become: false
 
 - name: Extract the zip containing the certificates
   unarchive:
