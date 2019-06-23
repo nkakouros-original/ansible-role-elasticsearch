@@ -9,10 +9,7 @@
 
 - name: Check that elastic search has started successfully
   uri:
-    url: >-
-      http{{ (elastic_certificates!= None) | ternary('s', '') }}://{{
-        elastic_bind_host }}:{{
-        elastic_bind_port }}
+    url: "{{ elastic_node_address }}"
     return_content: true
     validate_certs: false
   register: result

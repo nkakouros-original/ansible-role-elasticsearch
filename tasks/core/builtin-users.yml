@@ -30,3 +30,16 @@
     - elastic_builtin_users_password_backup_file != None
     - _elastic_builtin_users is changed
   delegate_to: localhost
+
+- name: Register elastic user's password
+  set_fact:
+    _elastic_elastic_user: >-
+      {{
+        (
+          lookup('file', elastic_builtin_users_password_backup_file)
+          | from_yaml
+          | selectattr('name', 'equalto', 'elastic')
+          | list
+        )[0]
+      }}
+  no_log: true

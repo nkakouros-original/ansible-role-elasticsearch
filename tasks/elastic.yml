@@ -30,4 +30,6 @@
 
 - include_tasks: core/builtin-users.yml
 
+- include_tasks: indexes.yml
+
 - include_tasks: realms/native.yml

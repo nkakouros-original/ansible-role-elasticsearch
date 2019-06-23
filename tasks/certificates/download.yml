@@ -6,6 +6,7 @@
     state: directory
     owner: "{{ lookup('env', 'USER') }}"
   delegate_to: localhost
+  become: false
 
 - name: Download certificates
   fetch:
@@ -17,7 +18,7 @@
     - /etc/elasticsearch/certs/elastic-stack-ca.zip
     - /etc/elasticsearch/certs/elasticsearch-certs.zip
   when: elastic_certificates_download | bool
-  become: true
+  become: false
 
 - name: Extract the zip containing the certificates
   unarchive:
@@ -33,3 +34,4 @@
     - elastic_certificates_download | bool
     - elastic_certificates_download_extract | bool
   delegate_to: localhost
+  become: false

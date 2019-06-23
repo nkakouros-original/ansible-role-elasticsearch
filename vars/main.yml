@@ -39,7 +39,6 @@ _elastic_certificates_ca_command: >-
 _elastic_certificates_cert_command: >-
   /usr/share/elasticsearch/bin/elasticsearch-certutil
     {{ elastic_certificates_generate_csr | ternary('csr', 'cert') }}
-    --silent
     --pem
     --in /etc/elasticsearch/certs/elasticsearch-certutil.yml
     --out /etc/elasticsearch/certs/elasticsearch-certs.zip
