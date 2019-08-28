@@ -4,6 +4,7 @@
   systemd:
     name: elasticsearch
     state: restarted
+    enabled: true
     daemon_reload: true
   listen: elastic restart service
 
