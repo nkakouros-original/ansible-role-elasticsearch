@@ -30,3 +30,5 @@
     easyrsa_to_pkcs1: "{{ easyrsa_clients + easyrsa_servers }}"
 
     easyrsa_download: []
+    easyrsa_download_pki: true
+    easyrsa_download_dir: '~/'
