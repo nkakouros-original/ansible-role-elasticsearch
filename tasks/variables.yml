@@ -9,5 +9,5 @@
   set_fact:
     elastic_node_address: >-
       http{{ (elastic_certificates != None) | ternary('s', '') }}://{{
-        elastic_bind_host }}:{{
+        elastic_bind_host[0] }}:{{
         elastic_bind_port }}

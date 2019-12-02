@@ -11,6 +11,8 @@
   failed_when:
     - _elastic_builtin_users is failed
     - _elastic_builtin_users.stdout is not search('Failed to verify bootstrap password')
+      and _elastic_builtin_users.stderr is not search('Failed to verify bootstrap password')
+
   changed_when: _elastic_builtin_users is not failed
 
 - name: Save built-in users new passwords locally
@@ -27,6 +29,7 @@
         | replace('u{', '{')
       }}
     dest: "{{ elastic_builtin_users_password_backup_file }}"
+    owner: "{{ lookup('env', 'USER') }}"
   when:
     - elastic_builtin_users_password_backup_file != None
     - _elastic_builtin_users is changed
