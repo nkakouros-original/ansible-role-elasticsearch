@@ -10,12 +10,6 @@
 
 - include_tasks: core/keystore.yml
 
-- include_tasks: certificates/generate.yml
-  when: elastic_certificates_generate | bool
-
-- include_tasks: certificates/download.yml
-  when: elastic_certificates_generate | bool
-
 - include_tasks: certificates/upload.yml
   when: elastic_certificates != None
 

@@ -13,7 +13,6 @@ This role will in a configurable manner:
 
 - install Elasticsearch
 - configure Elasticsearch
-- create TLS certificates
 - configure http and transport TLS
 - set passwords for built-in users
 - sync all the above information with the ansible controller for further use
@@ -30,7 +29,14 @@ None
 Dependencies
 ------------
 
-None. Of course, you will need to have java installed on the target system.
+- You will need to have java installed on the target system.
+- You will need to have generated certificates for use by elasticsearch (if you
+  need to enable encrypted communications)
+
+You can use other ansible roles to perform these tasks, such as
+[geerlingguy.java](https://github.com/geerlingguy/ansible-role-java) and
+[nkakouros.easyrsa](https://github.com/nkakouros-original/ansible-role-easyrsa).
+See the example playbook.
 
 Role Variables
 --------------
@@ -53,7 +59,8 @@ roles:
 However, they were not fit for my needs. The first one is too simple and any PRs
 to add functionality will most likely be stuck in the PR queue for months if not
 years. The second one is too messy for me with old and hard to read ansible
-code, a lot of bulk from previous versions and confusing documentation.
+code, a lot of bulk from previous elasticsearch versions and confusing
+documentation.
 
 Example Playbook
 ----------------

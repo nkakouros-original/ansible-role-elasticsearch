@@ -9,20 +9,6 @@
     elastic_node_name: nite-owl
     elastic_jvm_extra_config: |
       -Des.enforce.bootstrap.checks=true
-    elastic_certificates_generate: true
-    elastic_certificates_config:
-      # Each component of the ELK installation will use its own certificates
-      instances:
-        - name: elastic
-          ip:
-            - "127.0.0.1"
-        - name: kibana-backend
-          ip:
-            - "127.0.0.1"
-        - name: logstash
-          ip:
-            - "35.210.0.23"
-        - name: beats
     elastic_certificates_password: 'nk}$Q%];a3Gy$E!QvT8E'
     elastic_certificates_download_dir: ~/elk/certs/
     elastic_certificates:

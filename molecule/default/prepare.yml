@@ -5,8 +5,27 @@
   roles:
     - reallyenglish.apt-repo
     - geerlingguy.java
+    - nkakouros.easyrsa
   vars:
     apt_repo_to_add:
       - ppa:webupd8team/java
     java_packages:
       - openjdk-8-jre
+
+    easyrsa_servers:
+      - name: elastic
+        pass: 'nk}$Q%];a3Gy$E!QvT8E'
+
+    easyrsa_clients:
+      - name: logstash
+        pass: 'nk}$Q%];a3Gy$E!QvT8E'
+      - name: kibana-backend
+        pass: 'nk}$Q%];a3Gy$E!QvT8E'
+      - name: beats
+        pass: 'nk}$Q%];a3Gy$E!QvT8E'
+
+    easyrsa_to_pkcs12: "{{ easyrsa_clients + easyrsa_servers }}"
+    easyrsa_to_pkcs8: "{{ easyrsa_clients + easyrsa_servers }}"
+    easyrsa_to_pkcs1: "{{ easyrsa_clients + easyrsa_servers }}"
+
+    easyrsa_download: []
