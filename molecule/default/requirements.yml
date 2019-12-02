@@ -2,4 +2,5 @@
 
 - src: reallyenglish.apt-repo
 - src: geerlingguy.java
-- src: nkakouros.earyrsa
+- src: geerlingguy.git
+- src: nkakouros.easyrsa

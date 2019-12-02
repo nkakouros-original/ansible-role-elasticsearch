@@ -5,6 +5,7 @@
   roles:
     - reallyenglish.apt-repo
     - geerlingguy.java
+    - geerlingguy.git
     - nkakouros.easyrsa
   vars:
     apt_repo_to_add:
