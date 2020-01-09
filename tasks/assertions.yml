@@ -5,3 +5,16 @@
     that:
       - "ansible_os_family in ['Debian', 'RedHat']"
     msg: "{{ ansible_os_family }} is not supported"
+
+- name: Check if an `elastic` user pass is available
+  assert:
+    that:
+      - "elastic_builtin_users_password_backup_file != None
+         or elastic_users
+            | selectattr('name', 'equalto', 'elastic')
+            | list
+            | length > 0
+        "
+    msg: >-
+      either `elastic_builtin_users_password_backup_file` must be set
+      or `elastic_users` must contain a custom password for the `elastic` user

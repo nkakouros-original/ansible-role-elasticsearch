@@ -4,14 +4,13 @@
   uri:
     url: "{{ elastic_node_address }}/_template/{{ item.index }}"
     method: PUT
-    body: "{{ lookup('file', item.file) | from_json }}"
+    body: "{{ lookup('file', item.file) }}"
     body_format: json
     headers:
       Content-Type: application/json
-    force_basic_auth:
-      "{{ _elastic_elastic_user is defined | ternary(true, false) }}"
-    url_username: "{{ _elastic_elastic_user['name'] | default(omit) }}"
-    url_password: "{{ _elastic_elastic_user['password'] | default(omit) }}"
+    force_basic_auth: true
+    url_username: "{{ _elastic_elastic_user['name'] }}"
+    url_password: "{{ _elastic_elastic_user['pass'] }}"
     validate_certs: false
     return_content: true
   loop: "{{ elastic_indexes_to_import }}"

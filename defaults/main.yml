@@ -24,16 +24,34 @@ elastic_group: elasticsearch
 # user/group if they need to.
 # }}}
 # Security{{{
-elastic_builtin_users_set_random_passwords: false
-# Set to true to set random passwords for the built-in users
-
 elastic_builtin_users_password_backup_file: ~
-# Set to a path on the ansible controller where the new passwords for the
-# builtin users will be saved in. The records will be in a `{"name": user,
-# password: pass}` format and can be loaded into an ansible variable with the
-# `file` lookup plugin. If you leave this variable None, the new passwords will
-# be only printed during provisioning and you will have no way of finding them
-# afterwards.
+# The role will set random passwords for the built-in users, using the
+# `elasticsearch-setup-passwords` utility that comes with Elasticsearch.  You
+# can use these passwords to login into elasticsearch.  Set this variable to
+# a path on the ansible controller where these random passwords for the builtin
+# users will be saved in. The records will be in a `{"name": user, password:
+# pass}` format and can be loaded into an ansible variable with the `file`
+# lookup plugin. If you leave this variable None, the new passwords will be only
+# printed during provisioning and you will have no way of finding them
+# afterwards. In this case, if you re-run the role, it will most probably fail,
+# as the password is needed to interact with Elasticsearch. To avoid this,
+# either save the passwords with this variable or provide a custom password for
+# the `elastic` user in `elastic_users`.
+
+elastic_users: []
+# Example:
+# elastic_users:
+#   - name: my_user  # required
+#     pass: my_pass  # required
+#     enabled: true  # defaults to true
+#     email: user@email.com
+#     full_name: User Name
+#     roles:         # you can also use `groups` instead of `roles`
+#       - beats_admin
+#
+# Use this variable to create custom users on Elasticsearch. Depending on your
+# workflow, you may also want to use this to add custom passwords for the
+# built-in users, which will overwrite the random ones created by the role.
 # }}}
 # Certificates {{{
 # You can use the variables in this section to generate certificates and

@@ -7,52 +7,88 @@
     /usr/share/elasticsearch/bin/elasticsearch-setup-passwords auto
   args:
     executable: /bin/bash
-  register: _elastic_builtin_users
+  register: _result
   failed_when:
-    - _elastic_builtin_users is failed
-    - _elastic_builtin_users.stdout is not search('Failed to verify bootstrap password')
-      and _elastic_builtin_users.stderr is not search('Failed to verify bootstrap password')
+    - _result is failed
+    - _result.stdout is not search('Failed to verify bootstrap password')
+      and _result.stderr is not search('Failed to verify bootstrap password')
+  changed_when: _result is not failed
 
-  changed_when: _elastic_builtin_users is not failed
-
-- name: Save built-in users new passwords locally
-  copy:
-    content: >-
-      {{
-        _elastic_builtin_users.stdout_lines
+- name: Parse setup-passwords output
+  set_fact:
+    _elastic_builtin_users: >-
+      {% set q = [
+        _result.stdout_lines
         | select('regex', '^PASSWORD')
         | map('regex_replace',
               '^PASSWORD ([^\s]+) = ([^\s]+)',
-              '{"name": "\1", "password": "\2"}')
-        | list
-        | replace("'", '')
-        | replace('u{', '{')
-      }}
+              '{"name": "\\1", "pass": "\\2"}')
+        | join(',') ]
+      %}
+      {{ q | regex_replace("'(.*)'", '\1') }}
+  when: _result is changed
+
+- name: Save built-in users new passwords locally
+  copy:
+    content: "{{ _elastic_builtin_users }}"
     dest: "{{ elastic_builtin_users_password_backup_file }}"
     owner: "{{ lookup('env', 'USER') }}"
   when:
     - elastic_builtin_users_password_backup_file != None
-    - _elastic_builtin_users is changed
+    - _result is changed
   delegate_to: localhost
+  no_log: >-
+    {{
+      lookup('env', 'IN_MOLECULE')
+      | default(false, true)
+      | ternary(false, true)
+    }}
 
 - block:
     - name: Register elastic user's password
       set_fact:
         _elastic_elastic_user: >-
-          {{
-            (
+          {%- if _result is changed -%}
+            {# if setting random passwords for the first time #}
+            {{
               lookup('file', elastic_builtin_users_password_backup_file)
-              | from_yaml
+              | from_json
               | selectattr('name', 'equalto', 'elastic')
               | list
-            )[0]
+              | first
+            }}
+          {%- elif
+            elastic_users
+            | selectattr('name', 'equalto', 'elastic')
+            | list
+            | length > 0
+          -%}
+            {# if the user has provided a custom password for the 'elastic' user #}
+            {{
+              elastic_users
+              | selectattr('name', 'equalto', 'elastic')
+              | list
+              | first
+            }}
+          {%- elif elastic_builtin_users_password_backup_file != None -%}
+            {# if none of the above, the user must keep track of the random pass #}
+            {{
+              lookup('file', elastic_builtin_users_password_backup_file)
+              | from_json
+              | selectattr('name', 'equalto', 'elastic')
+              | list
+              | first
+            }}
+          {%- endif -%}
+        no_log: >-
+          {{
+            lookup('env', 'IN_MOLECULE')
+            | default(false, true)
+            | ternary(false, true)
           }}
-      no_log: >-
-        {{
-          lookup('env', 'IN_MOLECULE')
-          | default(false, true)
-          | ternary(false, true)
-        }}
+    - name: Make sure elastic user variable is json
+      set_fact:
+        _elastic_elastic_user: "{{ _elastic_elastic_user | trim }}"
   rescue:
     - name: Dump the password backup file
       debug:

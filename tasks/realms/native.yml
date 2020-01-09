@@ -1,1 +1,66 @@
 ---
+
+- name: Create variable with built-in users
+  set_fact:
+    _elastic_builtin_users:
+      - apm_system
+      - kibana
+      - logstash_system
+      - beats_system
+      - remote_monitoring_user
+      - elastic
+
+- name: Create users
+  uri:
+    url: "{{ elastic_node_address }}/_security/user/{{ item.name }}"
+    method: POST
+    body:
+      enabled: "{{ item.enabled | default(true) }}"
+      email: "{{ item.email | default(omit) }}"
+      full_name: "{{ item.full_name | default(omit) }}"
+      password: "{{ item.pass }}"
+      roles: "{{ item.roles | default(item.groups | default(omit)) }}"
+    body_format: json
+    headers:
+      Content-Type: application/json
+    force_basic_auth: true
+    url_username: "{{ _elastic_elastic_user['name'] }}"
+    url_password: "{{ _elastic_elastic_user['pass'] }}"
+    validate_certs: false
+    return_content: true
+  when: item.name not in _elastic_builtin_users
+  loop: "{{ elastic_users }}"
+
+- name: Change user password
+  uri:
+    url: "{{ elastic_node_address }}/_security/user/{{ item.name }}/_password"
+    method: POST
+    body:
+      password: "{{ item.pass }}"
+    body_format: json
+    headers:
+      Content-Type: application/json
+    force_basic_auth: true
+    url_username: "{{ _elastic_elastic_user['name'] }}"
+    url_password: "{{ _elastic_elastic_user['pass'] }}"
+    validate_certs: false
+    return_content: true
+  loop: "{{
+      elastic_users
+      | rejectattr('name', 'equalto', 'elastic')
+      | list
+      +
+      elastic_users
+      | selectattr('name', 'equalto', 'elastic')
+      | list
+    }}"
+
+- name: Keep track of `elastic` user's new password
+  set_fact:
+    _elastic_elastic_user: >-
+      {{
+        elastic_users
+        | selectattr('name', 'equalto', 'elastic')
+        | list
+        | first
+      }}
