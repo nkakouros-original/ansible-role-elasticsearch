@@ -21,3 +21,12 @@
     packages:
       - elasticsearch
       - unzip
+
+- name: Disable automatic updates
+  copy:
+    content: |
+      Unattended-Upgrade::Package-Blacklist {
+        "elasticsearch";
+      };
+    dest: /etc/apt/apt.conf.d/55elasticsearch-disable
+  when: elastic_disable_auto_update | bool

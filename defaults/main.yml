@@ -22,6 +22,11 @@ elastic_group: elasticsearch
 # group `elasticsearch`. The default behavior of the role is to replicate this,
 # while giving the option to the user to run elasticsearch as an arbitrary
 # user/group if they need to.
+
+# Whether to exclude elasticsearch from automatic system updates. Set this to
+# true if you want to manually update elasticsearch. This is valid only for
+# Linux servers that may have some kind of unattended update mechanism.
+elastic_disable_auto_update: false
 # }}}
 # Security{{{
 elastic_builtin_users_password_backup_file: ~
