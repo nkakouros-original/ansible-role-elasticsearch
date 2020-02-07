@@ -146,12 +146,12 @@ elastic_ingest_node: true
 # node.
 # }}}
 # Others {{{
-elastic_indexes_to_import: []
+elastic_index_templates_to_import: []
 # This is a list of files that contain index templates that should be imported
 # into elasticsearch. This is useful in cases you need to load an
 # auditbeat/packetbeat/etc index template manually because the beat installation
 # does not have direct access to elasticsearch. The format should be:
-# elastic_indexes_to_import:
+# elastic_index_templates_to_import:
 #   - file: /path/to/json/template/file
-#     index: the-name-of-the-index-where-the-template-will-be-imported
+#     index: the-name-of-the-index-template
 # }}}

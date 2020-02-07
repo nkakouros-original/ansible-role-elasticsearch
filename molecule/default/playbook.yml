@@ -37,7 +37,7 @@
       # controller where these json files are located in order for the
       # `nkakouros.elastic` role to insert them into elasticsearch.
       "{{ q('fileglob', '~/elk/beats/*.json') }}"
-    elastic_indexes_to_import: >-
+    elastic_index_templates_to_import: >-
       [
         {%- for file in template_files -%}
           {

@@ -13,4 +13,4 @@
     url_password: "{{ _elastic_elastic_user['pass'] }}"
     validate_certs: false
     return_content: true
-  loop: "{{ elastic_indexes_to_import }}"
+  loop: "{{ elastic_index_templates_to_import }}"
