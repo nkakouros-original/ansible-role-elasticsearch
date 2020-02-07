@@ -27,4 +27,6 @@
 
 - include_tasks: indexes.yml
 
+- include_tasks: pipelines.yml
+
 - include_tasks: realms/native.yml
