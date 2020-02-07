@@ -1,0 +1,18 @@
+---
+
+- name: Import ingest pipeines
+  uri:
+    url: "{{ elastic_node_address }}/_ingest/pipeline/{{ p.pipeline.description | replace('-', '_')}}"
+    method: PUT
+    body: "{{ p.pipeline }}"
+    body_format: json
+    headers:
+      Content-Type: application/json
+    force_basic_auth: true
+    url_username: "{{ _elastic_elastic_user['name'] }}"
+    url_password: "{{ _elastic_elastic_user['pass'] }}"
+    validate_certs: false
+    return_content: true
+  vars:
+    p: "{{ lookup('file', item) | from_yaml }}"
+  loop: "{{ elastic_ingest_pipelines }}"
