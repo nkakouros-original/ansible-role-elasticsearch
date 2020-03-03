@@ -1,10 +1,16 @@
 ---
 
-- name: Import ingest pipeines
+- name: Read ingest pipelines
+  set_fact:
+    _elastic_pipelines:
+      "{{ (_elastic_pipelines | d([])) + (lookup('file', item) | from_yaml).pipelines }}"
+  loop: "{{ elastic_ingest_pipelines }}"
+
+- name: Import ingest pipelines
   uri:
-    url: "{{ elastic_node_address }}/_ingest/pipeline/{{ p.pipeline.description | replace('-', '_')}}"
+    url: "{{ elastic_node_address }}/_ingest/pipeline/{{ item.description | replace('-', '_') }}"
     method: PUT
-    body: "{{ p.pipeline }}"
+    body: "{{ item }}"
     body_format: json
     headers:
       Content-Type: application/json
@@ -13,6 +19,4 @@
     url_password: "{{ _elastic_elastic_user['pass'] }}"
     validate_certs: false
     return_content: true
-  vars:
-    p: "{{ lookup('file', item) | from_yaml }}"
-  loop: "{{ elastic_ingest_pipelines }}"
+  loop: "{{ _elastic_pipelines }}"
