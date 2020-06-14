@@ -13,6 +13,8 @@
     - _result.stdout is not search('Failed to verify bootstrap password')
       and _result.stderr is not search('Failed to verify bootstrap password')
   changed_when: _result is not failed
+  retries: 3
+  until: _result is success
 
 - name: Parse setup-passwords output
   set_fact:

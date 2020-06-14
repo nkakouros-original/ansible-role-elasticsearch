@@ -4,9 +4,18 @@ elastic_enabled: true
 # Set to false to completely disable the role
 
 # Installation{{{
-elastic_major_version: '7'
-# The major version of elastic search to track. This will be used to add the
-# relevant repository and install the latest release for that version.
+elastic_major_version: 7
+# The major version of elasticsearch to install. This will also be used to add
+# the relevant repository.
+
+elastic_minor_version: 7
+# The minor version of elasticsearch to install. Set to `*` to install the
+# latest minor version for the `elastic_major_version`.
+
+elastic_disable_auto_update: false
+# Whether to exclude elasticsearch from automatic system updates. Set this to
+# true if you want to manually update elasticsearch. This is valid only for
+# Linux servers that may have some kind of unattended update mechanism.
 
 elastic_user: root
 # The user that will own elasticsearch files. Elasticsearch will be run as the
@@ -22,11 +31,6 @@ elastic_group: elasticsearch
 # group `elasticsearch`. The default behavior of the role is to replicate this,
 # while giving the option to the user to run elasticsearch as an arbitrary
 # user/group if they need to.
-
-# Whether to exclude elasticsearch from automatic system updates. Set this to
-# true if you want to manually update elasticsearch. This is valid only for
-# Linux servers that may have some kind of unattended update mechanism.
-elastic_disable_auto_update: false
 # }}}
 # Security{{{
 elastic_builtin_users_password_backup_file: ~

@@ -19,8 +19,11 @@
     update_cache: true
   vars:
     packages:
-      - elasticsearch
+      - "elasticsearch={{ elastic_major_version }}.{{
+              '.*' if elastic_minor_version == '*' else elastic_minor_version | string + '.*'}}"
+
       - unzip
+  notify: elastic restart service
 
 - name: Disable automatic updates
   copy:
