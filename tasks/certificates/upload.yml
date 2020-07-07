@@ -18,13 +18,14 @@
   loop: "{{ elastic_certificates| dict2items }}"
   notify: elastic restart service
 
-- name: Add certificates configuration
+- name: Add transport TSL configuration
   set_fact:
     elastic_combined_config: >-
       {{
         _elastic_certificates_config
         | combine(elastic_combined_config, recursive=true)
       }}
+  when: elastic_ssl_transport | bool
   vars:
     _elastic_certificates_config:
       xpack:
@@ -32,17 +33,30 @@
           transport:
             ssl:
               enabled: true
-              verification_mode: certificate
+              verification_mode: "{{ elastic_ssl_verification_mode }}"
               key: "{{ elastic_certificates_dir }}/{{
                         elastic_certificates.key | basename }}"
               certificate: "{{ elastic_certificates_dir }}/{{
                                 elastic_certificates.crt | basename }}"
               certificate_authorities: "{{ elastic_certificates_dir }}/{{
                                     elastic_certificates.ca | basename }}"
+
+- name: Add transport http configuration
+  set_fact:
+    elastic_combined_config: >-
+      {{
+        _elastic_certificates_config
+        | combine(elastic_combined_config, recursive=true)
+      }}
+  when: elastic_ssl_http | bool
+  vars:
+    _elastic_certificates_config:
+      xpack:
+        security:
           http:
             ssl:
               enabled: true
-              verification_mode: certificate
+              verification_mode: "{{ elastic_ssl_verification_mode }}"
               key: "{{ elastic_certificates_dir }}/{{
                         elastic_certificates.key | basename }}"
               certificate: "{{ elastic_certificates_dir }}/{{

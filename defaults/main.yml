@@ -35,17 +35,19 @@ elastic_group: elasticsearch
 # Security{{{
 elastic_builtin_users_password_backup_file: ~
 # The role will set random passwords for the built-in users, using the
-# `elasticsearch-setup-passwords` utility that comes with Elasticsearch.  You
-# can use these passwords to login into elasticsearch.  Set this variable to
-# a path on the ansible controller where these random passwords for the builtin
-# users will be saved in. The records will be in a `{"name": user, password:
-# pass}` format and can be loaded into an ansible variable with the `file`
-# lookup plugin. If you leave this variable None, the new passwords will be only
+# `elasticsearch-setup-passwords` utility that comes with Elasticsearch.  These
+# users and passwords can be used to interact with elasticsearch. This will
+# happen only the first time you install and configure elasticsearch. You can
+# use these passwords to login into elasticsearch.  Set this variable to a path
+# on the ansible controller where these random passwords for the builtin users
+# will be saved in. The records will be in a `{"name": user, password: pass}`
+# format and can be loaded into an ansible variable with the `file` lookup
+# plugin. If you leave this variable None, the new passwords will be only
 # printed during provisioning and you will have no way of finding them
-# afterwards. In this case, if you re-run the role, it will most probably fail,
-# as the password is needed to interact with Elasticsearch. To avoid this,
-# either save the passwords with this variable or provide a custom password for
-# the `elastic` user in `elastic_users`.
+# afterwards. In this case, provide a custom password for the `elastic` user in
+# `elastic_users` which the role will use to update the `elastic` user before
+# exiting. Otherwise, the role will fail in later runs as there will be no user
+# to connect to elasticsearch.
 
 elastic_users: []
 # Example:
@@ -92,6 +94,18 @@ elastic_certificates: ~
 
 elastic_certificates_dir: /etc/elasticsearch/certs/
 # The folder where `elastic_certificates` will be uploaded into.
+
+elastic_ssl_http: false
+elastic_ssl_transport: false
+# Set to true to have the role populate the elasticsearch settings that will
+# enable TLS encryption for the HTTP endpoint and the transport layer
+# respectively. If you keep these variable to false, you will have to manually
+# configure elasticsearch (via the `elastic_config` variable) to use the
+# certificates.
+
+elastic_ssl_verification_mode: full
+# Whether to request connecting clients to provide a valid certificate. This
+# will be used if `elastic_ssl_http/elastic_ssl_transport` are set to true.
 # }}}
 # Configuration {{{
 elastic_jvm_min_heap_size: 1g
@@ -150,14 +164,37 @@ elastic_ingest_node: true
 # node.
 # }}}
 # Others {{{
-elastic_index_templates_to_import: []
+elastic_index_templates: []
 # This is a list of files that contain index templates that should be imported
 # into elasticsearch. This is useful in cases you need to load an
 # auditbeat/packetbeat/etc index template manually because the beat installation
-# does not have direct access to elasticsearch. The format should be:
-# elastic_index_templates_to_import:
-#   - file: /path/to/json/template/file
-#     index: the-name-of-the-index-template
+# does not have direct access to elasticsearch and the `setup` command cannot be
+# used. The format should be similar to this:
+# ```
+# elastic_index_templates:
+#   - name: the-name-of-the-index-template
+#     file: /path/to/json/template/file
+#     overrides:
+#       mappings:
+#         properties:
+#           url:
+#             full:
+#               type: keyword
+#               ignore_above: 8192
+#               fields:
+#                 text:
+#                   type: text
+#                   norms: false
+# ```
+# In this example a template is loaded from a file and some overrides are
+# applied. The overrides are useful in instances where you get a template from
+# a source but need to modify it a bit. For instance, the `url.full` field in
+# the packetbeat template is configured with `ignore_above: 1024` which may be
+# too limiting. The example above will reconfigure the `url.full` field with
+# `ignore_above: 8192`.
+# You can omit the `overrides` key. You can also omit the `file` key and supply
+# the `overrides` key. In this case, an existing template in elasticsearch will
+# be read and then updated using the overrides.
 
 elastic_ingest_pipelines: []
 # A list of files that contain a list of ingest pipeline specifications in yaml
@@ -180,4 +217,9 @@ elastic_ingest_pipelines: []
 #           field: "openvpn.date"
 #           formats:
 #             - EEE MMM d HH:mm:ss yyyy
+
+elastic_cluster_uuid_backup: ~
+# Set to a file on the controller where you would like the cluster uuid to be
+# stored. The cluster uuid is useful when e.g. setting up beats monitoring and
+# you want to include the beats in the same cluster as elasticsearch.
 # }}}

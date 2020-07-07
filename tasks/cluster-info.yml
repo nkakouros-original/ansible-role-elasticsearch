@@ -1,0 +1,19 @@
+---
+
+- name: Read cluster info
+  uri:
+    url: "{{ elastic_node_address }}/"
+    method: GET
+    force_basic_auth: true
+    url_username: "{{ _elastic_elastic_user['name'] }}"
+    url_password: "{{ _elastic_elastic_user['pass'] }}"
+    validate_certs: false
+    return_content: true
+  register: _elastic_info
+
+- name: Save cluster uuid
+  copy:
+    content: "{{ (_elastic_info.content | from_json).cluster_uuid }}"
+    dest: "{{ elastic_cluster_uuid_backup }}"
+  become: false
+  delegate_to: localhost

@@ -2,9 +2,9 @@
 
 - name: Import index templates
   uri:
-    url: "{{ elastic_node_address }}/_template/{{ item.index }}"
+    url: "{{ elastic_node_address }}/_template/{{ template.name }}"
     method: PUT
-    body: "{{ lookup('file', item.file) }}"
+    body: "{{ lookup('file', template.file) }}"
     body_format: json
     headers:
       Content-Type: application/json
@@ -13,4 +13,46 @@
     url_password: "{{ _elastic_elastic_user['pass'] }}"
     validate_certs: false
     return_content: true
-  loop: "{{ elastic_index_templates_to_import }}"
+  when: template.file is defined
+  loop: "{{ elastic_index_templates }}"
+  loop_control:
+    loop_var: template
+
+- name: Update index template
+  block:
+    - name: Read existing template
+      uri:
+        url: "{{ elastic_node_address }}/_template/{{ template.name }}"
+        method: GET
+        headers:
+          Content-Type: application/json
+        force_basic_auth: true
+        url_username: "{{ _elastic_elastic_user['name'] }}"
+        url_password: "{{ _elastic_elastic_user['pass'] }}"
+        validate_certs: false
+        return_content: true
+      register: _existing_templates
+      when: "{{ template.overrides is defined }}"
+      loop: "{{ elastic_index_templates }}"
+      loop_control:
+        loop_var: template
+
+    - name: Import overriden index template
+      uri:
+        url: "{{ elastic_node_address }}/_template/{{ template.name }}"
+        method: PUT
+        body: "{{ _existing_templates.results[i].json[template.name]
+                  | combine(template.overrides, recursive=true) }}"
+        body_format: json
+        headers:
+          Content-Type: application/json
+        force_basic_auth: true
+        url_username: "{{ _elastic_elastic_user['name'] }}"
+        url_password: "{{ _elastic_elastic_user['pass'] }}"
+        validate_certs: false
+        return_content: false
+      when: template.overrides is defined
+      loop: "{{ elastic_index_templates }}"
+      loop_control:
+        loop_var: template
+        index_var: i

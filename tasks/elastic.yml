@@ -8,6 +8,8 @@
 
 - include_tasks: "core/install/{{ ansible_os_family }}.yml"
 
+- include_tasks: core/version.yml
+
 - include_tasks: core/keystore.yml
 
 - include_tasks: certificates/upload.yml
@@ -29,3 +31,6 @@
 - include_tasks: pipelines.yml
 
 - include_tasks: realms/native.yml
+
+- include_tasks: cluster-info.yml
+  when: elastic_cluster_uuid_backup is not none

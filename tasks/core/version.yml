@@ -1,0 +1,16 @@
+---
+
+- name: Get elasticsearch version
+  shell: ls /usr/share/elasticsearch/lib/elasticsearch-cli-*
+  changed_when: false
+  register: _elastic_path_with_version
+  when: ansible_os_family != 'Windows'
+
+- name: Register elasticsearch version
+  set_fact:
+    elastic_full_version: >-
+      {{
+        _elastic_path_with_version.stdout
+        | regex_replace('/usr/share/elasticsearch/lib/elasticsearch-cli-(.*)\.jar', '\1')
+        | trim
+      }}
