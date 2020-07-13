@@ -11,6 +11,13 @@
     return_content: true
   register: _elastic_info
 
+- name: Create uuid backup directory
+  file:
+    path: "{{ elastic_cluster_uuid_backup | dirname }}"
+    state: directory
+  become: false
+  delegate_to: localhost
+
 - name: Save cluster uuid
   copy:
     content: "{{ (_elastic_info.content | from_json).cluster_uuid }}"

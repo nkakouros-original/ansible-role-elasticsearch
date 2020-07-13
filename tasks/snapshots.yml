@@ -1,0 +1,68 @@
+---
+
+- name: Register snapshot repositories
+  uri:
+    url: "{{ elastic_node_address }}/_snapshot/{{ repo.name }}"
+    method: PUT
+    body:
+      type: "{{ repo.type }}"
+      settings: "{{ repo.settings }}"
+    body_format: json
+    headers:
+      Content-Type: application/json
+    force_basic_auth: true
+    url_username: "{{ _elastic_elastic_user['name'] }}"
+    url_password: "{{ _elastic_elastic_user['pass'] }}"
+    validate_certs: false
+    return_content: false
+  loop: "{{ elastic_snapshot_repositories }}"
+  loop_control:
+    loop_var: repo
+
+- name: Create snapshot lifecycle policies
+  uri:
+    url: "{{ elastic_node_address }}/_slm/policy/{{ policy.id }}"
+    method: PUT
+    body:
+      name: "{{ policy.name }}"
+      repository: "{{ policy.repository }}"
+      config: "{{ policy.config }}"
+      schedule: "{{ policy.schedule }}"
+      retention: "{{ policy.retention | d(omit) }}"
+    body_format: json
+    headers:
+      Content-Type: application/json
+    force_basic_auth: true
+    url_username: "{{ _elastic_elastic_user['name'] }}"
+    url_password: "{{ _elastic_elastic_user['pass'] }}"
+    validate_certs: false
+    return_content: false
+  loop: "{{ elastic_snapshot_policies }}"
+  loop_control:
+    loop_var: policy
+
+- name: Start SLM policy
+  uri:
+    url: "{{ elastic_node_address }}/_slm/start"
+    method: POST
+    headers:
+      Content-Type: application/json
+    force_basic_auth: true
+    url_username: "{{ _elastic_elastic_user['name'] }}"
+    url_password: "{{ _elastic_elastic_user['pass'] }}"
+    validate_certs: false
+    return_content: false
+  when: elastic_snapshot_policy_enable | bool
+
+- name: Stop SLM policy
+  uri:
+    url: "{{ elastic_node_address }}/_slm/stop"
+    method: POST
+    headers:
+      Content-Type: application/json
+    force_basic_auth: true
+    url_username: "{{ _elastic_elastic_user['name'] }}"
+    url_password: "{{ _elastic_elastic_user['pass'] }}"
+    validate_certs: false
+    return_content: false
+  when: not elastic_snapshot_policy_enable | bool

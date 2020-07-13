@@ -53,7 +53,7 @@
           {%- if _result is changed -%}
             {# if setting random passwords for the first time #}
             {{
-              lookup('file', elastic_builtin_users_password_backup_file)
+              _elastic_builtin_users
               | from_json
               | selectattr('name', 'equalto', 'elastic')
               | list

@@ -20,17 +20,26 @@
     - elastic_certificates_password != None
     - elastic_certificates != None
 
+- include_tasks: core/plugins.yml
+
 - include_tasks: core/configure.yml
 
 - meta: flush_handlers
 
 - include_tasks: core/builtin-users.yml
+  when: elastic_combined_config.xpack.security.enabled | d(false) | bool
+
+- include_tasks: plugins/repository-gcs.yml
+  when: elastic_plugin_gcs_enabled | bool
 
 - include_tasks: indexes.yml
 
 - include_tasks: pipelines.yml
 
+- include_tasks: snapshots.yml
+
 - include_tasks: realms/native.yml
+  when: elastic_combined_config.xpack.security.enabled | d(false) | bool
 
 - include_tasks: cluster-info.yml
   when: elastic_cluster_uuid_backup is not none

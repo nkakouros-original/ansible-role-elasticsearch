@@ -18,8 +18,7 @@ _elastic_config_defaults:
   discovery:
     seed_providers:
       - settings
-    seed_hosts:
-      - 127.0.0.1
+    seed_hosts: "{{ elastic_discovery_seed_hosts }}"
   path:
     data: /var/lib/elasticsearch
     logs: /var/log/elasticsearch

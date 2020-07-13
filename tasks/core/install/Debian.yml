@@ -13,7 +13,15 @@
     repo: "deb https://artifacts.elastic.co/packages/{{
               elastic_major_version }}.x/apt stable main"
 
-- name: Install Elasticsearch and dependencies
+- name: Install dependencies
+  apt:
+    name: "{{ packages }}"
+    update_cache: true
+  vars:
+    packages:
+      - unzip
+
+- name: Install Elasticsearch
   apt:
     name: "{{ packages }}"
     update_cache: true
@@ -21,8 +29,8 @@
     packages:
       - "elasticsearch={{ elastic_major_version }}.{{
               '.*' if elastic_minor_version == '*' else elastic_minor_version | string + '.*'}}"
-      - unzip
   notify: elastic restart service
+  register: _elastic_update_or_install
 
 - name: Disable automatic updates
   copy:

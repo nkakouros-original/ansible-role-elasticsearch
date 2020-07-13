@@ -8,6 +8,12 @@
 - name: Create elasticsearch node address
   set_fact:
     elastic_node_address: >-
-      http{{ (elastic_certificates != None) | ternary('s', '') }}://{{
+      http{{ elastic_ssl_http | ternary('s', '') }}://{{
         elastic_bind_host[0] }}:{{
         elastic_bind_port }}
+
+- name: Initialize variables
+  set_fact:
+    _elastic_elastic_user:
+      name: demo  # arbitrary value to initialize the variable
+      pass: demo

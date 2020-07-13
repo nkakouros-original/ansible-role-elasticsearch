@@ -31,3 +31,21 @@
       debug:
         var: _elasticsearch_log
       failed_when: true
+
+- name: Reload secure settings
+  uri:
+    url: "{{ elastic_node_address }}/_nodes/reload_secure_settings"
+    method: POST
+    body:
+      secure_settings_password: "{{ elastic_keystore_password | d('') }}"
+    body_format: json
+    headers:
+      Content-Type: application/json
+    force_basic_auth: true
+    url_username: "{{ _elastic_elastic_user['name'] }}"
+    url_password: "{{ _elastic_elastic_user['pass'] }}"
+    validate_certs: false
+  listen: elastic reload settings
+  # **Some** settings stored in the keystore are reloadable. This means that ES
+  # does not have to be restarted. Instead, the above call will make the
+  # settings have immediate effect.

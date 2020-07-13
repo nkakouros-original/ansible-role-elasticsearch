@@ -63,6 +63,14 @@ elastic_users: []
 # Use this variable to create custom users on Elasticsearch. Depending on your
 # workflow, you may also want to use this to add custom passwords for the
 # built-in users, which will overwrite the random ones created by the role.
+
+# TODO currently not supported, do not use, no password is set on the keystore.
+# Need to:
+# - supply the password when setting passwrods for builtin users
+# - supply the password for http and transport ssl
+# - what else is stored in the keystore??
+elastic_keystore_password: ~
+# The password to encrypt the elastic keystore.
 # }}}
 # Certificates {{{
 # You can use the variables in this section to generate certificates and
@@ -153,6 +161,12 @@ elastic_cluster_name: elasticsearch
 
 elastic_cluster_initial_master_nodes:
   - "{{ elastic_node_name }}"
+# The list of initial master-eligible nodes that will be used to bootstrap the
+# cluster. This is just added into the `elastic_config` and not used further.
+
+elastic_discovery_seed_hosts:
+  - 127.0.0.1
+# The list of master-eligible hosts.
 
 elastic_node_name: "{{ inventory_hostname }}"
 # The name of the node
@@ -162,6 +176,77 @@ elastic_data_node: true
 elastic_ingest_node: true
 # Whether the provisioned node will be act as a master and/or data and/or ingest
 # node.
+# }}}
+# Plugins {{{
+elastic_plugins: []
+# A list of elasticsearch plugins to install. This can be a list of plugin
+# names, urls, etc or a list dicts like the one below. You can also mix the two
+# formats.
+# ```
+# elastic_plugins:
+#   - repository-aws
+#   - name: repository-gcs
+#     mandatory: true
+# ```
+# The `mandatory` keyword will instruct the role to add this plugin in the
+# comma-separated list under `plugin.mandatory` in the `elastic_config`. This
+# means that elasticsearch will fail to start if the plugin is not installed.
+
+# Repository GCS {{{
+# For this plugin, you need to create a Google Cloud Storage and Google Cloud
+# credentials outside of this role.
+
+elastic_plugin_gcs_enabled: false
+# Set to true to have the role configure the repository-gcs plugin.
+
+elastic_plugin_gcs_credentials: ~
+# The GCP credentials to use for the repository-gcs plugin. This must be set if
+# the plugin is enabled, otherwise the role will fail. The format is as follows:
+# ```
+# elastic_plugin_gcs_credentials:
+#   name: client  # the name of the client, to be used when defining snapshots
+#   src: /local/path/to/json/file
+# ```
+
+elastic_plugin_gcs_refresh_credentials: false
+# Set to true to replace any already stored credentials.
+
+elastic_plugin_gcs_bucket_name: my-bucket
+# The google cloud storage bucket that will be used to store the snapshots.
+# }}}
+# }}}
+# Snapshots {{{
+elastic_snapshot_repositories: []
+# A list of snapshot repositories. The format is as follows.
+# ```
+# elastic_snapshot_repositories:
+#   - name: repo-name
+#     type: fs
+#     settings:
+#       location: "/mnt/snapshots/"
+#       compress: true
+# ```
+# To use a snapshot type that is offered by a plugin, use `elastic_plugins` to
+# install the required plugin first.
+
+elastic_snapshot_policy_enable: true
+# Set to false to halt all snapshot lifecycle management operations.
+
+elastic_snapshot_policies: []
+# A list of snapshots policies to install. The format is as follows.
+# ```
+# elastic_snapshot_policies:
+#   - id: my-sql-policy
+#     name: 'my-index-{now/d}'
+#     repository: repo-name
+#     config:
+#       indices: ['*']
+#     schedule: "0 39 1 * * ?"
+#     retention:
+#       expire_after: 30d
+#       min_count: 4
+#       max_count: 30
+# ```
 # }}}
 # Others {{{
 elastic_index_templates: []

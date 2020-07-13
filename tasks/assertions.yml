@@ -18,3 +18,11 @@
     msg: >-
       either `elastic_builtin_users_password_backup_file` must be set
       or `elastic_users` must contain a custom password for the `elastic` user
+
+- name: Check GCP credentials
+  assert:
+    that:
+      - "not elastic_plugin_gcs_enabled | bool
+         or elastic_plugin_gcs_enabled | bool
+         and elastic_plugin_gcs_credentials is mapping"
+    msg: "GCP credentials must be set if the repository-gcs plugin is enabled"
