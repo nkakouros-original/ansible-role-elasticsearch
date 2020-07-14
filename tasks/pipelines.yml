@@ -2,8 +2,10 @@
 
 - name: Read ingest pipelines
   set_fact:
-    _elastic_pipelines:
-      "{{ (_elastic_pipelines | d([])) + (lookup('file', item) | from_yaml).pipelines }}"
+    _elastic_pipelines: "{{ (_elastic_pipelines | d([]))
+                            + ((lookup('file', item.src) | from_yaml).pipelines
+                                if 'src' in item else [item])
+                          }}"
   loop: "{{ elastic_ingest_pipelines }}"
 
 - name: Import ingest pipelines

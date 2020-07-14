@@ -38,6 +38,8 @@
 
 - include_tasks: snapshots.yml
 
+- include_tasks: stored-scripts.yml
+
 - include_tasks: core/roles.yml
 
 - include_tasks: realms/native.yml

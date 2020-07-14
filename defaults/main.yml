@@ -293,8 +293,22 @@ elastic_index_templates: []
 
 elastic_ingest_pipelines: []
 # A list of files that contain a list of ingest pipeline specifications in yaml
-# format. Example of an OpenVPN log file parsing pipeline:
-# pipelines:
+# format. Example:
+# ```
+# elastic_ingest_pipelines:
+#   - src: /path/to/file
+# ```
+#
+# Alternatively, you can provide the pipeline inline using the following syntax:
+# ```
+# elastic_ingest_pipelines:
+#   - description: ...
+#     ...
+# ```
+#
+# Here is an example of an OpenVPN log file parsing pipeline:
+# ```
+# pipelines:  # this key is needed if the pipeline is stored in a file
 #   - description: "openvpn-connection-log-line"
 #     processors:
 #       - grok:
@@ -312,6 +326,7 @@ elastic_ingest_pipelines: []
 #           field: "openvpn.date"
 #           formats:
 #             - EEE MMM d HH:mm:ss yyyy
+# ```
 
 elastic_cluster_uuid_backup: ~
 # Set to a file on the controller where you would like the cluster uuid to be

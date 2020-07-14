@@ -1,0 +1,21 @@
+---
+
+- name: Upload stored scripts
+  uri:
+    url: "{{ elastic_node_address }}/_scripts/{{ script.name }}"
+    method: PUT
+    body:
+      script:
+        lang: "{{ script.lang }}"
+        source: "{{ script.source }}"
+    body_format: json
+    headers:
+      Content-Type: application/json
+    force_basic_auth: true
+    url_username: "{{ _elastic_elastic_user['name'] }}"
+    url_password: "{{ _elastic_elastic_user['pass'] }}"
+    validate_certs: false
+    return_content: false
+  loop: "{{ elastic_stored_scripts }}"
+  loop_control:
+    loop_var: script
