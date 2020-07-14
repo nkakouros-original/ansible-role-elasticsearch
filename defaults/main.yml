@@ -49,6 +49,22 @@ elastic_builtin_users_password_backup_file: ~
 # exiting. Otherwise, the role will fail in later runs as there will be no user
 # to connect to elasticsearch.
 
+# TODO currently not supported, do not use, no password is set on the keystore.
+# Need to:
+# - supply the password when setting passwrods for builtin users
+# - supply the password for http and transport ssl
+# - what else is stored in the keystore??
+elastic_keystore_password: ~
+# The password to encrypt the elastic keystore.
+
+# Roles {{{
+elastic_custom_roles: []
+# Use this variable to define a list of custom roles for users. The syntax of
+# each role is simply the YAML equivalent of the json syntax for defining a role
+# (see the docs). Example:
+# }}}
+# Realms {{{
+# Native realm {{{
 elastic_users: []
 # Example:
 # elastic_users:
@@ -63,14 +79,8 @@ elastic_users: []
 # Use this variable to create custom users on Elasticsearch. Depending on your
 # workflow, you may also want to use this to add custom passwords for the
 # built-in users, which will overwrite the random ones created by the role.
-
-# TODO currently not supported, do not use, no password is set on the keystore.
-# Need to:
-# - supply the password when setting passwrods for builtin users
-# - supply the password for http and transport ssl
-# - what else is stored in the keystore??
-elastic_keystore_password: ~
-# The password to encrypt the elastic keystore.
+# }}}
+# }}}
 # }}}
 # Certificates {{{
 # You can use the variables in this section to generate certificates and
