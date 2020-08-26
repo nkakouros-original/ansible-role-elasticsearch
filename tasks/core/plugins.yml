@@ -16,12 +16,12 @@
   args:
     chdir: /usr/share/elasticsearch
   loop: "{{ elastic_plugins }}"
-  loop_control:
-    loop_var: plugin
+  vars:
+    plugin: "{{ item.name if item is mapping else item }}"
   register: _result
   failed_when:
     - _result is failed
-    - _result.stderr is contains("plugin [" + plugin + "] not found")
+    - _result.stderr is not contains("plugin [" + plugin + "] not found")
     # This check is needed mostly when the installation is new. In this case the
     # `_elastic_update_or_install` var will be `changed` but no plugins will be
     # installed. If ES was updated, the plugins will be present and the task
@@ -30,18 +30,18 @@
     # need to be removed and re-added to be updated to newer versions. ES must
     # also be restarted after the update.
   when:
-    - _elastic_update_or_install is changed
+    - _elastic_update_or_install | d({}) is changed  # using a default if install was skipped
     - plugin in _elastic_installed_plugins
   notify: elastic restart service
 
 - name: Install elasticsearch plugins
-  shell: echo 'y' | bin/elasticsearch-plugin install "{{ _plugin }}"
+  shell: echo 'y' | bin/elasticsearch-plugin install "{{ plugin }}"
   args:
     chdir: /usr/share/elasticsearch
   loop: "{{ elastic_plugins }}"
   vars:
-    _plugin: "{{ item.name if item is mapping else item }}"
-  when: _elastic_update_or_install is changed
+    plugin: "{{ item.name if item is mapping else item }}"
+  when: _elastic_update_or_install | d({}) is changed
         or _plugin not in _elastic_installed_plugins
   notify: elastic restart service
 

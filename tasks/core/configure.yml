@@ -1,5 +1,14 @@
 ---
 
+- name: Combine configs
+  set_fact:
+    elastic_combined_config: >-
+      {{
+        _elastic_config_defaults
+        | combine(elastic_combined_config, recursive=True)
+        | combine(elastic_config, recursive=True)
+      }}
+
 - name: Create elasticsearch.yml
   copy:
     content: >-

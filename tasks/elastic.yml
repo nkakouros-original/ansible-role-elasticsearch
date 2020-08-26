@@ -6,6 +6,9 @@
 
 - include_tasks: core/system.yml
 
+- include_tasks: core/version.yml
+  when: _elastic_already_installed.stat.exists | bool
+
 - include_tasks: "core/install/{{ ansible_os_family }}.yml"
 
 - include_tasks: core/version.yml

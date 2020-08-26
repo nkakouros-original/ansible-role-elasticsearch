@@ -1,9 +1,8 @@
 ---
 
-- name: Merge user conf with defaults
+- name: Initialize variable
   set_fact:
-    elastic_combined_config:
-      "{{ _elastic_config_defaults | combine(elastic_config, recursive=True) }}"
+    elastic_combined_config: {}
 
 - name: Create elasticsearch node address
   set_fact:
@@ -12,8 +11,26 @@
         elastic_bind_host[0] }}:{{
         elastic_bind_port }}
 
+- name: Check if elasticsearch already installed
+  stat:
+    path: /etc/elasticsearch/elasticsearch.yml
+  register: _elastic_already_installed
+
 - name: Initialize variables
   set_fact:
     _elastic_elastic_user:
       name: demo  # arbitrary value to initialize the variable
       pass: demo
+    elastic_full_version: '0.0.0.'
+
+- name: Build user defined version string
+  set_fact:
+    elastic_user_version: >-
+      {{
+        elastic_major_version | string
+      }}{{
+        '.' + elastic_minor_version | string if elastic_minor_version != '*'
+      }}{{
+        '.' + elastic_patch_version | string if elastic_minor_version != '*'
+                                             and elastic_patch_version != '*'
+      }}

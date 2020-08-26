@@ -12,6 +12,11 @@ elastic_minor_version: 7
 # The minor version of elasticsearch to install. Set to `*` to install the
 # latest minor version for the `elastic_major_version`.
 
+elastic_patch_version: 1
+# The patch version of elasticsearch to install. Set to `*` to install the
+# latest patch version. If `elastic_minor_version` is set to `*` this is
+# effectively ignored.
+
 elastic_disable_auto_update: false
 # Whether to exclude elasticsearch from automatic system updates. Set this to
 # true if you want to manually update elasticsearch. This is valid only for

@@ -1,36 +1,41 @@
 ---
 
-- name: Install apt-transport-https
-  apt:
-    name: apt-transport-https
+- name: Install elasticsearch
+  block:
+    - name: Install apt-transport-https
+      apt:
+        name: apt-transport-https
 
-- name: Add Elasticsearch Signing Key
-  apt_key:
-    url: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+    - name: Add Elasticsearch Signing Key
+      apt_key:
+        url: https://artifacts.elastic.co/GPG-KEY-elasticsearch
 
-- name: Add elastic repository
-  apt_repository:
-    repo: "deb https://artifacts.elastic.co/packages/{{
-              elastic_major_version }}.x/apt stable main"
+    - name: Add elastic repository
+      apt_repository:
+        repo: "deb https://artifacts.elastic.co/packages/{{
+                  elastic_major_version }}.x/apt stable main"
 
-- name: Install dependencies
-  apt:
-    name: "{{ packages }}"
-    update_cache: true
-  vars:
-    packages:
-      - unzip
+    - name: Install dependencies
+      apt:
+        name: "{{ packages }}"
+        update_cache: true
+      vars:
+        packages:
+          - unzip
 
-- name: Install Elasticsearch
-  apt:
-    name: "{{ packages }}"
-    update_cache: true
-  vars:
-    packages:
-      - "elasticsearch={{ elastic_major_version }}.{{
-              '.*' if elastic_minor_version == '*' else elastic_minor_version | string + '.*'}}"
-  notify: elastic restart service
-  register: _elastic_update_or_install
+    - name: Install Elasticsearch
+      apt:
+        name: "{{ packages }}"
+        update_cache: true
+      vars:
+        packages:
+          - "elasticsearch={{ elastic_major_version }}.{{
+              elastic_minor_version | string }}{{
+              '' if elastic_minor_version == '*' else '.' + elastic_patch_version | string
+            }}"
+      notify: elastic restart service
+      register: _elastic_update_or_install
+  when: elastic_full_version is version(elastic_user_version, '<')
 
 - name: Disable automatic updates
   copy:
