@@ -8,8 +8,13 @@
     - geerlingguy.git
     - nkakouros.easyrsa
   vars:
-    apt_repo_to_add:
-      - ppa:webupd8team/java
+    apt_repo_to_add: >-
+      {{
+        ['ppa:webupd8team/java']
+        if ansible_distribution_version != '20.04'
+          and ansible_distribution == 'Ubuntu'
+        else []
+      }}
 
     java_packages:
       - openjdk-8-jre
