@@ -29,10 +29,10 @@ jobs:
             #   instance: systemd-centos-7
             # - image: jrei/systemd-centos:8
             #   instance: systemd-centos-8
-          - image: jrei/systemd-debian:9
-            instance: systemd-debian-9
-          - image: jrei/systemd-debian:10
-            instance: systemd-debian-10
+            # - image: jrei/systemd-debian:9
+            #   instance: systemd-debian-9
+            # - image: jrei/systemd-debian:10
+            #   instance: systemd-debian-10
     steps:
       - uses: actions/checkout@v2
 

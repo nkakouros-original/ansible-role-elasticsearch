@@ -13,10 +13,10 @@ galaxy_info:
         - 16.04
         - 18.04
         - 20.04
-    - name: Debian
-      versions:
-        - 9
-        - 10
+  # - name: Debian
+  #   versions:
+  #     - 9
+  #     - 10
   galaxy_tags:
     - elasticsearch
     - elk
