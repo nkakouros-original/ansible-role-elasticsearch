@@ -15,7 +15,7 @@
     owner: "{{ elastic_group if _elasticsearch__certificate.key == 'key' else elastic_user }}"
     group: "{{ elastic_group }}"
     mode: "{{ '0o400' if _elasticsearch__certificate.key == 'key' else '0o640' }}"
-  loop: "{{ elastic_certificates| dict2_item }}"
+  loop: "{{ elastic_certificates| dict2_items }}"
   loop_control:
     loop_var: _elasticsearch__certificate
   notify: elastic-restart-service
