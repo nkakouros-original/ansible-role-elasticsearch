@@ -333,6 +333,14 @@ elastic_ingest_pipelines: []
 #             - EEE MMM d HH:mm:ss yyyy
 # ```
 
+elastic_stored_scripts: []
+# A list of scripts to store on elasticsearch for faster use in ingest node
+# pipelines, etc. The format is:
+# elastic_stored_scripts:
+#   - name: my-script
+#     lang: painless
+#     source: "ctx.agent.type == 'packetbeat'"
+
 elastic_cluster_uuid_backup: ~
 # Set to a file on the controller where you would like the cluster uuid to be
 # stored. The cluster uuid is useful when e.g. setting up beats monitoring and

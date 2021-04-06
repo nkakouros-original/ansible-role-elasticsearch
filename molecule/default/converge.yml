@@ -5,6 +5,7 @@
   roles:
     - nkakouros.elasticsearch
   vars:
+    elastic_bind_host: 0.0.0.0
     elastic_cluster_name: watchmen
     elastic_node_name: nite-owl
     elastic_jvm_extra_config: |
@@ -21,13 +22,14 @@
       xpack:
         security:
           hide_settings: 'xpack.security.authc.realms.native.*'
-          authc:
-            accept_default_password: false
-            realms:
-              native:
-                native1:
-                  enabled: true
-                  order: 0
+          enabled: false
+          # authc:
+          #   accept_default_password: false
+          #   realms:
+          #     native:
+          #       native1:
+          #         enabled: true
+          #         order: 0
     template_files:
       # When using logstash in front of kibana and you use elastic beats to send
       # data to logstash (which will then be forwarded to elastic), you will

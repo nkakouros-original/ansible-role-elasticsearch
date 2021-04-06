@@ -32,3 +32,14 @@
     easyrsa_download: []
     easyrsa_download_pki: true
     easyrsa_download_dir: '~/'
+  pre_tasks:
+    - name: Install packages required by ansible modules
+      package:
+        name: "{{ package }}"
+      loop: "{{ packages }}"
+      loop_control:
+        loop_var: package
+      vars:
+        packages:
+          - gnupg
+          - software-properties-common
