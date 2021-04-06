@@ -3,16 +3,24 @@
 - name: Read ingest pipelines
   set_fact:
     _elastic_pipelines: "{{ (_elastic_pipelines | d([]))
-                            + ((lookup('file', item.src) | from_yaml).pipelines
-                                if 'src' in item else [item])
+                            + (
+                                (lookup('file', _elasticsearch_pipeline.src)
+                                 | from_yaml
+                                ).pipelines
+                                if 'src' in _elasticsearch_pipeline
+                                else [_elasticsearch_pipeline]
+                              )
                           }}"
   loop: "{{ elastic_ingest_pipelines }}"
+  loop_control:
+    loop_var: _elasticsearch__pipeline
 
 - name: Import ingest pipelines
   uri:
-    url: "{{ elastic_node_address }}/_ingest/pipeline/{{ item.description | replace('-', '_') }}"
+    url: "{{ elastic_node_address }}/_ingest/pipeline/{{
+             _elasticsearch_pipeline.description | replace('-', '_') }}"
     method: PUT
-    body: "{{ item }}"
+    body: "{{ _elasticsearch_pipeline }}"
     body_format: json
     headers:
       Content-Type: application/json
@@ -22,3 +30,5 @@
     validate_certs: false
     return_content: true
   loop: "{{ _elastic_pipelines | d([]) }}"
+  loop_control:
+    loop_var: _elasticsearch__pipeline

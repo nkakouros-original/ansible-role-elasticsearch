@@ -7,7 +7,7 @@ driver:
 lint: |
   set -e
   yamllint --config-file molecule/default/yamllint.yml .
-  ansible-lint .
+  ansible-lint -c molecule/default/ansible-lint.yml .
   flake8
 platforms:
   - name: "${MOLECULE_INSTANCE_NAME:-systemd-ubuntu-18.04}"

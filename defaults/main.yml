@@ -320,7 +320,10 @@ elastic_ingest_pipelines: []
 #           field: message
 #           ignore_failure: true
 #           patterns:
-#             - "%{TIMESTAMP:openvpn.date} %{DATA} \\[%{DATA:openvpn.common_name}\\] Peer Connection Initiated with \\[AF_INET\\]%{IP:openvpn.host}:%{POSINT:openvpn.port}"
+#             - >-
+#                 %{TIMESTAMP:openvpn.date} %{DATA}
+#                   \\[%{DATA:openvpn.common_name}\\] Peer Connection Initiated
+#                   with \\[AF_INET\\]%{IP:openvpn.host}:%{POSINT:openvpn.port}
 #           pattern_definitions:
 #             TIMESTAMP: "%{DAY} %{MONTH}  ?%{MONTHDAY} %{TIME} %{YEAR}"
 #       - gsub:

@@ -16,8 +16,13 @@
   args:
     chdir: /usr/share/elasticsearch
   loop: "{{ elastic_plugins }}"
+  loop_control:
+    loop_var: _elasticsearch__plugin
   vars:
-    plugin: "{{ item.name if item is mapping else item }}"
+    plugin: "{{ _elasticsearch__plugin.name
+                  if _elasticsearch__plugin is mapping
+                  else _elasticsearch__plugin
+             }}"
   register: _result
   failed_when:
     - _result is failed
@@ -32,18 +37,25 @@
   when:
     - _elastic_update_or_install | d({}) is changed  # using a default if install was skipped
     - plugin in _elastic_installed_plugins
-  notify: elastic restart service
+  notify: elastic-restart-service
 
 - name: Install elasticsearch plugins
-  shell: echo 'y' | bin/elasticsearch-plugin install "{{ plugin }}"
+  shell: >-
+    set -o pipefail;
+    echo 'y' | bin/elasticsearch-plugin install "{{ plugin }}"
   args:
     chdir: /usr/share/elasticsearch
   loop: "{{ elastic_plugins }}"
+  loop_control:
+    loop_var: _elasticsearch__plugin
   vars:
-    plugin: "{{ item.name if item is mapping else item }}"
+    plugin: "{{ _elasticsearch__plugin.name
+                  if _elasticsearch__plugin is mapping
+                  else _elasticsearch__plugin
+             }}"
   when: _elastic_update_or_install | d({}) is changed
-        or _plugin not in _elastic_installed_plugins
-  notify: elastic restart service
+        or plugin not in _elastic_installed_plugins
+  notify: elastic-restart-service
 
 - name: Update elastic_config with mandatory plugins
   set_fact:
@@ -62,4 +74,3 @@
                        | map(attribute='name')
                        | join(',')
                      }}"
-

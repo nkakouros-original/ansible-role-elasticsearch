@@ -2,9 +2,9 @@
 
 - name: Import index templates
   uri:
-    url: "{{ elastic_node_address }}/_template/{{ template.name }}"
+    url: "{{ elastic_node_address }}/_template/{{ _elasticsearch__template.name }}"
     method: PUT
-    body: "{{ lookup('file', template.file) }}"
+    body: "{{ lookup('file', _elasticsearch__template.file) }}"
     body_format: json
     headers:
       Content-Type: application/json
@@ -13,16 +13,16 @@
     url_password: "{{ _elastic_elastic_user['pass'] }}"
     validate_certs: false
     return_content: true
-  when: template.file is defined
+  when: _elasticsearch__template.file is defined
   loop: "{{ elastic_index_templates }}"
   loop_control:
-    loop_var: template
+    loop_var: _elasticsearch__template
 
 - name: Update index template
   block:
     - name: Read existing template
       uri:
-        url: "{{ elastic_node_address }}/_template/{{ template.name }}"
+        url: "{{ elastic_node_address }}/_template/{{ _elasticsearch__template.name }}"
         method: GET
         headers:
           Content-Type: application/json
@@ -32,17 +32,17 @@
         validate_certs: false
         return_content: true
       register: _existing_templates
-      when: "{{ template.overrides is defined }}"
+      when: _elasticsearch__template.overrides is defined
       loop: "{{ elastic_index_templates }}"
       loop_control:
-        loop_var: template
+        loop_var: _elasticsearch__template
 
     - name: Import overriden index template
       uri:
-        url: "{{ elastic_node_address }}/_template/{{ template.name }}"
+        url: "{{ elastic_node_address }}/_template/{{ _elasticsearch__template.name }}"
         method: PUT
-        body: "{{ _existing_templates.results[i].json[template.name]
-                  | combine(template.overrides, recursive=true) }}"
+        body: "{{ _existing_templates.results[i].json[_elasticsearch__template.name]
+                  | combine(_elasticsearch__template.overrides, recursive=true) }}"
         body_format: json
         headers:
           Content-Type: application/json
@@ -51,8 +51,8 @@
         url_password: "{{ _elastic_elastic_user['pass'] }}"
         validate_certs: false
         return_content: false
-      when: template.overrides is defined
+      when: _elasticsearch__template.overrides is defined
       loop: "{{ elastic_index_templates }}"
       loop_control:
-        loop_var: template
+        loop_var: _elasticsearch__template
         index_var: i

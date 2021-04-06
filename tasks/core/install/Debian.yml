@@ -33,7 +33,7 @@
               elastic_minor_version | string }}{{
               '' if elastic_minor_version == '*' else '.' + elastic_patch_version | string
             }}"
-      notify: elastic restart service
+      notify: elastic-restart-service
       register: _elastic_update_or_install
   when: elastic_full_version is version(elastic_user_version, '<')
 
@@ -44,4 +44,5 @@
         "elasticsearch";
       };
     dest: /etc/apt/apt.conf.d/55elasticsearch-disable
+    mode: 0o644
   when: elastic_disable_auto_update | bool
