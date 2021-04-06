@@ -20,28 +20,28 @@
     owner: "{{ elastic_user }}"
     group: "{{ elastic_group }}"
     mode: 0o660
-  notify: elastic restart service
+  notify: elastic-restart-service
 
 - name: Set the minimum heap size for java virtual machine
   lineinfile:
     regexp: '^-Xms'
     line: "-Xms{{ elastic_jvm_min_heap_size }}"
     path: /etc/elasticsearch/jvm.options
-  notify: elastic restart service
+  notify: elastic-restart-service
 
 - name: Set the maximum heap size for java virtual machine
   lineinfile:
     path: /etc/elasticsearch/jvm.options
     regexp: '^-Xmx'
     line: "-Xmx{{ elastic_jvm_max_heap_size }}"
-  notify: elastic restart service
+  notify: elastic-restart-service
 
 - name: Add further custom JVM configuration
   blockinfile:
     path: /etc/elasticsearch/jvm.options
     block: "{{ elastic_jvm_extra_config }}"
   when: elastic_jvm_extra_config != None
-  notify: elastic restart service
+  notify: elastic-restart-service
 
 - name: Create systemd override file
   copy:
@@ -51,4 +51,4 @@
     group: root
     mode: 0o644
   when: elastic_systemd_override != None
-  notify: elastic restart service
+  notify: elastic-restart-service

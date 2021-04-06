@@ -2,11 +2,11 @@
 
 - name: Register snapshot repositories
   uri:
-    url: "{{ elastic_node_address }}/_snapshot/{{ repo.name }}"
+    url: "{{ elastic_node_address }}/_snapshot/{{ _elasticsearch__repo.name }}"
     method: PUT
     body:
-      type: "{{ repo.type }}"
-      settings: "{{ repo.settings }}"
+      type: "{{ _elasticsearch__repo.type }}"
+      settings: "{{ _elasticsearch__repo.settings }}"
     body_format: json
     headers:
       Content-Type: application/json
@@ -17,18 +17,18 @@
     return_content: false
   loop: "{{ elastic_snapshot_repositories }}"
   loop_control:
-    loop_var: repo
+    loop_var: _elasticsearch__repo
 
 - name: Create snapshot lifecycle policies
   uri:
-    url: "{{ elastic_node_address }}/_slm/policy/{{ policy.id }}"
+    url: "{{ elastic_node_address }}/_slm/policy/{{ _elasticsearch__policy.id }}"
     method: PUT
     body:
-      name: "{{ policy.name }}"
-      repository: "{{ policy.repository }}"
-      config: "{{ policy.config }}"
-      schedule: "{{ policy.schedule }}"
-      retention: "{{ policy.retention | d(omit) }}"
+      name: "{{ _elasticsearch__policy.name }}"
+      repository: "{{ _elasticsearch__policy.repository }}"
+      config: "{{ _elasticsearch__policy.config }}"
+      schedule: "{{ _elasticsearch__policy.schedule }}"
+      retention: "{{ _elasticsearch__policy.retention | d(omit) }}"
     body_format: json
     headers:
       Content-Type: application/json
@@ -39,7 +39,7 @@
     return_content: false
   loop: "{{ elastic_snapshot_policies }}"
   loop_control:
-    loop_var: policy
+    loop_var: _elasticsearch__policy
 
 - name: Start SLM policy
   uri:

@@ -27,7 +27,8 @@
 
 - include_tasks: core/configure.yml
 
-- meta: flush_handlers
+- name: Run pending handlers now
+  meta: flush_handlers
 
 - include_tasks: core/builtin-users.yml
   when: elastic_combined_config.xpack.security.enabled | d(false) | bool

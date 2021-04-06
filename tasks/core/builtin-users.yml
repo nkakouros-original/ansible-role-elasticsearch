@@ -35,6 +35,7 @@
     content: "{{ _elastic_builtin_users }}"
     dest: "{{ elastic_builtin_users_password_backup_file }}"
     owner: "{{ lookup('env', 'USER') }}"
+    mode: 0o644
   when:
     - elastic_builtin_users_password_backup_file != None
     - _result is changed

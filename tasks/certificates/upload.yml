@@ -10,13 +10,15 @@
 
 - name: Upload certificates
   copy:
-    src: "{{ item.value }}"
-    dest: "{{ elastic_certificates_dir }}/{{ item.value | basename }}"
-    owner: "{{ elastic_group if item.key == 'key' else elastic_user }}"
+    src: "{{ _elasticsearch__certificate.value }}"
+    dest: "{{ elastic_certificates_dir }}/{{ _elasticsearch__certificate.value | basename }}"
+    owner: "{{ elastic_group if _elasticsearch__certificate.key == 'key' else elastic_user }}"
     group: "{{ elastic_group }}"
-    mode: "{{ '0o400' if item.key == 'key' else '0o640' }}"
+    mode: "{{ '0o400' if _elasticsearch__certificate.key == 'key' else '0o640' }}"
   loop: "{{ elastic_certificates| dict2items }}"
-  notify: elastic restart service
+  loop_control:
+    loop_var: _elasticsearch__certificate
+  notify: elastic-restart-service
 
 - name: Add transport TSL configuration
   set_fact:
