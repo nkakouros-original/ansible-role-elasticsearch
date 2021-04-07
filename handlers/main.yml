@@ -45,7 +45,7 @@
     url_username: "{{ _elastic_elastic_user['name'] }}"
     url_password: "{{ _elastic_elastic_user['pass'] }}"
     validate_certs: false
-  listen: elastic reload settings
+  listen: elastic-reload-settings
   # **Some** settings stored in the keystore are reloadable. This means that ES
   # does not have to be restarted. Instead, the above call will make the
   # settings have immediate effect.

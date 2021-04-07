@@ -33,11 +33,6 @@
               - index2
             privileges:
               - all
-            field_security:
-              grant:
-                - title
-                - body
-            query: '{"match": {"title": "foo"}}'
         applications:
           - application: myapp
             privileges:
@@ -68,7 +63,7 @@
     elastic_certificates:
       ca: "~/pki/ca.crt"
       crt: "~/pki/issued/elastic.crt"
-      key: "~/pki/private/elastic.key"
+      key: "~/pki/private/elastic.p1"
     elastic_certificates_dir: /etc/elasticsearch/certs/
 
     # Configuration
@@ -81,7 +76,7 @@
       xpack:
         security:
           hide_settings: 'xpack.security.authc.realms.native.*'
-          enabled: false
+          enabled: true
           authc:
             accept_default_password: false
             realms:
@@ -89,7 +84,8 @@
                 native1:
                   enabled: true
                   order: 0
-    elastic_bind_host: 0.0.0.0
+    elastic_bind_host:
+      - 0.0.0.0
     elastic_cluster_name: watchmen
     elastic_node_name: nite-owl
     elastic_master_node: true

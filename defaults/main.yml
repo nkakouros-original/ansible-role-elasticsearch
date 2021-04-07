@@ -74,7 +74,7 @@ elastic_keystore_password: ~
 elastic_custom_roles: []
 # Use this variable to define a list of custom roles for users. The syntax of
 # each role is simply the YAML equivalent of the json syntax for defining a role
-# (see the elasticsearch docs). Example taken from the docs:
+# (see the elasticsearch docs). Example adapted from the docs:
 # elastic_custom_roles:
 #   - name: my_admin_role
 #     cluster:
@@ -85,11 +85,6 @@ elastic_custom_roles: []
 #           - index2
 #         privileges:
 #           - all
-#         field_security:
-#           grant:
-#             - title
-#             - body
-#         query: '{"match": {"title": "foo"}}'
 #     applications:
 #       - application: myapp
 #         privileges:
@@ -147,7 +142,7 @@ elastic_certificates: ~
 # elastic_certificates:
 #   ca: path/to/ca.cert
 #   cert: path/to/node/cert
-#   key: path/to/node/key
+#   key: path/to/node/key  # has to be in PKCS#1 format
 
 elastic_certificates_dir: /etc/elasticsearch/certs/
 # The folder where `elastic_certificates` will be uploaded into.
@@ -195,13 +190,14 @@ elastic_config: {}
 # configuration can be found in the `vars/main.yml` file of this role. For what
 # these settings do, consult the elastic search documentation.
 
-elastic_bind_host: localhost
-# The address where elastic will listen on for requests to its JSON api.
+elastic_bind_host:
+  - localhost
+# The addresses where elastic will listen on for requests to its JSON api.
 
 elastic_bind_port: 9200
 # The port where elastic will listen on for request to its JSON api.
 
-elastic_transport_host: "{{ elastic_bind_host }}"
+elastic_transport_host: "{{ elastic_bind_host[0] }}"
 # The address elastic search will use to communicate with other nodes in the
 # cluster.
 
