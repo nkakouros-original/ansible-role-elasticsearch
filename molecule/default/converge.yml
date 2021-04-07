@@ -3,6 +3,10 @@
 # TODO test enabling plugins
 # TODO test creating snapshots
 # TODO test ingest pipelines
+# TODO add test case to check for password renewal
+# TODO enable full certificate validation
+# TODO do use a json file to test the actual template importing, the lookup
+# currently returns the empty list, no json file exists.
 
 - name: Converge
   hosts: all
@@ -58,9 +62,8 @@
     # TLS setup
     elastic_ssl_http: true
     elastic_ssl_transport: true
-    # TODO add test case to check for password renewal
     elastic_certificates_password_renew: false
-    elastic_ssl_verification_mode: none  # TODO enable full
+    elastic_ssl_verification_mode: none
     elastic_certificates_password: 'nk}$Q%];a3Gy$E!QvT8E'
     elastic_certificates:
       ca: "~/pki/ca.crt"
@@ -103,8 +106,6 @@
     # `nkakouros.elastic` role to insert them into elasticsearch.
     template_files:
       "{{ q('fileglob', '~/elk/beats/*.json') }}"
-    # TODO do use a json file to test the actual template importing, the lookup
-    # currently returns the empty list, no json file exists.
 
     elastic_index_templates: >-
       [

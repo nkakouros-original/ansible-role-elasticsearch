@@ -43,12 +43,20 @@
   when: elastic_jvm_extra_config != None
   notify: elastic-restart-service
 
-- name: Create systemd override file
-  copy:
-    content: "{{ elastic_systemd_override }}"
-    dest: /etc/systemd/system/elasticsearch.service.d/override.conf
-    owner: root
-    group: root
-    mode: 0o644
-  when: elastic_systemd_override != None
-  notify: elastic-restart-service
+- name: Override systemd service settings
+  block:
+    - name: Create systemd override directory
+      file:
+        path: /etc/systemd/system/elasticsearch.service.d
+        mode: 0o755
+        state: directory
+
+    - name: Create systemd override file
+      copy:
+        content: "{{ elastic_systemd_override }}"
+        dest: /etc/systemd/system/elasticsearch.service.d/override.conf
+        owner: root
+        group: root
+        mode: 0o644
+      notify: elastic-restart-service
+  when: elastic_systemd_override is not none
