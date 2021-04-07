@@ -11,8 +11,8 @@
   vars:
     # Installation
     elastic_major_version: 7
-    elastic_minor_version: *
-    elastic_patch_version: *
+    elastic_minor_version: '*'
+    elastic_patch_version: '*'
     elastic_disable_auto_update: true
 
     # Security
