@@ -1,44 +1,108 @@
 ---
 
+# TODO test enabling plugins
+# TODO test creating snapshots
+# TODO test ingest pipelines
+# TODO add test case to check for password renewal
+# TODO enable full certificate validation
+# TODO do use a json file to test the actual template importing, the lookup
+# currently returns the empty list, no json file exists.
+
 - name: Converge
   hosts: all
   roles:
     - nkakouros.elasticsearch
   vars:
-    elastic_bind_host: 0.0.0.0
-    elastic_cluster_name: watchmen
-    elastic_node_name: nite-owl
-    elastic_jvm_extra_config: |
-      -Des.enforce.bootstrap.checks=true
+    # Installation
+    elastic_major_version: 7
+    elastic_minor_version: '*'
+    elastic_patch_version: '*'
+    elastic_disable_auto_update: true
+
+    # Security
+    elastic_builtin_users_set_random_passwords: true
+    elastic_builtin_users_password_backup_file: ~/elastic-passwords
+
+    elastic_custom_roles:
+      - name: my_admin_role
+        cluster:
+          - all
+        indices:
+          - names:
+              - index1
+              - index2
+            privileges:
+              - all
+        applications:
+          - application: myapp
+            privileges:
+              - admin
+              - read
+            resources:
+              - "*"
+        run_as:
+          - other_user
+        metadata:
+          version: 1
+
+    elastic_users:
+      - name: my_user
+        pass: my_pass
+        enabled: true
+        email: user@email.com
+        full_name: User Name
+        roles:
+          - my_admin_role
+
+    # TLS setup
+    elastic_ssl_http: true
+    elastic_ssl_transport: true
+    elastic_certificates_password_renew: false
+    elastic_ssl_verification_mode: none
     elastic_certificates_password: 'nk}$Q%];a3Gy$E!QvT8E'
     elastic_certificates:
       ca: "~/pki/ca.crt"
       crt: "~/pki/issued/elastic.crt"
-      key: "~/pki/private/elastic.key"
+      key: "~/pki/private/elastic.p1"
     elastic_certificates_dir: /etc/elasticsearch/certs/
-    elastic_builtin_users_set_random_passwords: true
-    elastic_builtin_users_password_backup_file: ~/elastic-passwords
+
+    # Configuration
+    elastic_jvm_extra_config: |
+      -Des.enforce.bootstrap.checks=true
+    elastic_systemd_override: |
+      [Service]
+      LimitMEMLOCK=infinity
     elastic_config:
       xpack:
         security:
           hide_settings: 'xpack.security.authc.realms.native.*'
-          enabled: false
-          # authc:
-          #   accept_default_password: false
-          #   realms:
-          #     native:
-          #       native1:
-          #         enabled: true
-          #         order: 0
+          enabled: true
+          authc:
+            accept_default_password: false
+            realms:
+              native:
+                native1:
+                  enabled: true
+                  order: 0
+    elastic_bind_host:
+      - 0.0.0.0
+    elastic_cluster_name: watchmen
+    elastic_node_name: nite-owl
+    elastic_master_node: true
+    elastic_data_node: true
+    elastic_ingest_node: true
+
+    # Others
+    # When using logstash in front of kibana and you use elastic beats to send
+    # data to logstash (which will then be forwarded to elastic), you will
+    # need to manually load the index templates that come with the elastic
+    # beats. This `nkakouros.beats` role allow you to extract the index
+    # template into a json file. Here, we read the paths on the ansible
+    # controller where these json files are located in order for the
+    # `nkakouros.elastic` role to insert them into elasticsearch.
     template_files:
-      # When using logstash in front of kibana and you use elastic beats to send
-      # data to logstash (which will then be forwarded to elastic), you will
-      # need to manually load the index templates that come with the elastic
-      # beats. The `nkakouros.beats` role allow you to extract the index
-      # template into a json file. Here, we read the paths on the ansible
-      # controller where these json files are located in order for the
-      # `nkakouros.elastic` role to insert them into elasticsearch.
       "{{ q('fileglob', '~/elk/beats/*.json') }}"
+
     elastic_index_templates: >-
       [
         {%- for file in template_files -%}
@@ -53,3 +117,11 @@
           },
         {%- endfor -%}
       ]
+
+    elastic_stored_scripts:
+      - name: packetbeat_filter
+        # Hypothetical script that matches packetbeat logs as they come.
+        lang: painless
+        source: "ctx.agent.type == 'packetbeat'"
+
+    elastic_cluster_uuid_backup: '~/elasticsearch-uuid'

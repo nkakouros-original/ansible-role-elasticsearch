@@ -22,20 +22,27 @@ elastic_disable_auto_update: false
 # true if you want to manually update elasticsearch. This is valid only for
 # Linux servers that may have some kind of unattended update mechanism.
 
+# TODO rename these to `elastic_files_user` and `elastic_files_group`.
 elastic_user: root
-# The user that will own elasticsearch files. Elasticsearch will be run as the
-# `elasticsearch` user as defined in the systemd service file that comes with
-# the elasticsearch installation, regardless of this setting. If you want to
-# change that user as well, you can use the `elastic_systemd_override` variable
+# The user that will own elasticsearch files. By default, when installing
+# elasticsearch, the configuration files are owned by user `root` and group
+# `elasticsearch`. The default behavior of the role is to replicate this, while
+# giving the option to the user to run elasticsearch as an arbitrary user/group
+# if they need to. Elasticsearch itself will *run* as the `elasticsearch` user
+# as defined in the systemd service file that comes with the elasticsearch
+# installation, regardless of this setting. If you want to change the user
+# elasticsearch will run as, you can use the `elastic_systemd_override` variable
 # to change the user that systemd will use to run elasticsearch.
 
 elastic_group: elasticsearch
-# The group that `elasticsearch_user` will be added to. If the `kibana_user` is
+# The group that `elasticsearch_user` will be added to. If the `elastic_user` is
 # `root`, the `root` user will not be added to this group. By default, when
 # installing elasticsearch, the configuration files are owned by user `root` and
 # group `elasticsearch`. The default behavior of the role is to replicate this,
 # while giving the option to the user to run elasticsearch as an arbitrary
-# user/group if they need to.
+# user/group if they need to. In the default setup, elasticsearch will be able
+# to read the config files that are owned by root (see the `elastic_user`
+# variable) because this group will have read permissions.
 # }}}
 # Security{{{
 elastic_builtin_users_password_backup_file: ~
@@ -49,10 +56,11 @@ elastic_builtin_users_password_backup_file: ~
 # format and can be loaded into an ansible variable with the `file` lookup
 # plugin. If you leave this variable None, the new passwords will be only
 # printed during provisioning and you will have no way of finding them
-# afterwards. In this case, provide a custom password for the `elastic` user in
-# `elastic_users` which the role will use to update the `elastic` user before
-# exiting. Otherwise, the role will fail in later runs as there will be no user
-# to connect to elasticsearch.
+# afterwards. In this case, provide a custom password for the `elastic` user
+# using the `elastic_users` variable so that the role can update the `elastic`
+# user before exiting. Otherwise, the role will fail in later runs as there will
+# be no way to know the random password of the elastic user in order to connect
+# to elasticsearch.
 
 # TODO currently not supported, do not use, no password is set on the keystore.
 # Need to:
@@ -62,14 +70,35 @@ elastic_builtin_users_password_backup_file: ~
 elastic_keystore_password: ~
 # The password to encrypt the elastic keystore.
 
-# Roles {{{
+## Roles {{{
 elastic_custom_roles: []
 # Use this variable to define a list of custom roles for users. The syntax of
 # each role is simply the YAML equivalent of the json syntax for defining a role
-# (see the docs). Example:
-# }}}
-# Realms {{{
-# Native realm {{{
+# (see the elasticsearch docs). Example adapted from the docs:
+# elastic_custom_roles:
+#   - name: my_admin_role
+#     cluster:
+#       - all
+#     indices:
+#       - names:
+#           - index1
+#           - index2
+#         privileges:
+#           - all
+#     applications:
+#       - application: myapp
+#         privileges:
+#           - admin
+#           - read
+#         resources:
+#           - "*"
+#     run_as:
+#       - other_user
+#     metadata:
+#       version: 1
+## }}}
+## Realms {{{
+### Native realm {{{
 elastic_users: []
 # Example:
 # elastic_users:
@@ -79,13 +108,13 @@ elastic_users: []
 #     email: user@email.com
 #     full_name: User Name
 #     roles:         # you can also use `groups` instead of `roles`
-#       - beats_admin
+#       - my_admin_role
 #
 # Use this variable to create custom users on Elasticsearch. Depending on your
 # workflow, you may also want to use this to add custom passwords for the
 # built-in users, which will overwrite the random ones created by the role.
-# }}}
-# }}}
+### }}}
+## }}}
 # }}}
 # Certificates {{{
 # You can use the variables in this section to generate certificates and
@@ -113,7 +142,7 @@ elastic_certificates: ~
 # elastic_certificates:
 #   ca: path/to/ca.cert
 #   cert: path/to/node/cert
-#   key: path/to/node/key
+#   key: path/to/node/key  # has to be in PKCS#1 format
 
 elastic_certificates_dir: /etc/elasticsearch/certs/
 # The folder where `elastic_certificates` will be uploaded into.
@@ -124,7 +153,10 @@ elastic_ssl_transport: false
 # enable TLS encryption for the HTTP endpoint and the transport layer
 # respectively. If you keep these variable to false, you will have to manually
 # configure elasticsearch (via the `elastic_config` variable) to use the
-# certificates.
+# certificates. If you don't use any certificates and leave these variables to
+# `false`, nothing TLS related will be performed by the role. In this case, make
+# sure that you have not enabled xpack security, otherwise, elasticsearch will
+# fail to start as xpack security requires TLS to be enabled and configured.
 
 elastic_ssl_verification_mode: full
 # Whether to request connecting clients to provide a valid certificate. This
@@ -158,13 +190,14 @@ elastic_config: {}
 # configuration can be found in the `vars/main.yml` file of this role. For what
 # these settings do, consult the elastic search documentation.
 
-elastic_bind_host: localhost
-# The address where elastic will listen on for requests to its JSON api.
+elastic_bind_host:
+  - localhost
+# The addresses where elastic will listen on for requests to its JSON api.
 
 elastic_bind_port: 9200
 # The port where elastic will listen on for request to its JSON api.
 
-elastic_transport_host: "{{ elastic_bind_host }}"
+elastic_transport_host: "{{ elastic_bind_host[0] }}"
 # The address elastic search will use to communicate with other nodes in the
 # cluster.
 

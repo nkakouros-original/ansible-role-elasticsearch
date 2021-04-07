@@ -8,8 +8,10 @@
   set_fact:
     elastic_node_address: >-
       http{{ elastic_ssl_http | ternary('s', '') }}://{{
-        elastic_bind_host[0] }}:{{
-        elastic_bind_port }}
+        '127.0.0.1'
+          if elastic_bind_host[0] == '0.0.0.0'
+          else elastic_bind_host[0]
+        }}:{{ elastic_bind_port }}
 
 - name: Check if elasticsearch already installed
   stat:
