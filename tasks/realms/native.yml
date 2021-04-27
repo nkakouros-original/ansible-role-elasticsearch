@@ -12,15 +12,15 @@
 
 - name: Create users
   uri:
-    url: "{{ elastic_node_address }}/_security/user/{{ _elasticsearch__item.name }}"
+    url: "{{ elastic_node_address }}/_security/user/{{ _elasticsearch__user.name }}"
     method: POST
     body:
-      enabled: "{{ _elasticsearch__item.enabled | default(true) }}"
-      email: "{{ _elasticsearch__item.email | default(omit) }}"
-      full_name: "{{ _elasticsearch__item.full_name | default(omit) }}"
-      password: "{{ _elasticsearch__item.pass }}"
-      roles: "{{ _elasticsearch__item.roles
-                 | default(_elasticsearch__item.groups
+      enabled: "{{ _elasticsearch__user.enabled | default(true) }}"
+      email: "{{ _elasticsearch__user.email | default(omit) }}"
+      full_name: "{{ _elasticsearch__user.full_name | default(omit) }}"
+      password: "{{ _elasticsearch__user.pass }}"
+      roles: "{{ _elasticsearch__user.roles
+                 | default(_elasticsearch__user.groups
                  | default(omit))
               }}"
     body_format: json
@@ -31,17 +31,17 @@
     url_password: "{{ _elastic_elastic_user['pass'] }}"
     validate_certs: false
     return_content: true
-  when: _elasticsearch__item.name not in _elastic_builtin_users
+  when: _elasticsearch__user.name not in _elastic_builtin_users
   loop: "{{ elastic_users }}"
   loop_control:
     loop_var: _elasticsearch__user
 
 - name: Change user password
   uri:
-    url: "{{ elastic_node_address }}/_security/user/{{ _elasticsearch__item.name }}/_password"
+    url: "{{ elastic_node_address }}/_security/user/{{ _elasticsearch__user.name }}/_password"
     method: POST
     body:
-      password: "{{ _elasticsearch__item.pass }}"
+      password: "{{ _elasticsearch__user.pass }}"
     body_format: json
     headers:
       Content-Type: application/json

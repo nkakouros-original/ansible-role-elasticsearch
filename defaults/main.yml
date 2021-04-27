@@ -148,15 +148,25 @@ elastic_systemd_override: ~
 #   [Service]
 #   LimitMEMLOCK=infinity
 
+elastic_node_name: "{{ inventory_hostname }}"
+# The name of the node
+
+elastic_master_node: true
+elastic_data_node: true
+elastic_ingest_node: true
+# Whether the provisioned node will be act as a master and/or data and/or ingest
+# node.
+
 elastic_config: {}
 # Elastic configuration in the form of a yaml array with non-collapsed keys.
 # This will be merged with a default configuration shipped with this role. The
-# variables below are used by the default configuration and you don't need to
-# set them again. You could include that info directly in `elastic_config` and
-# ignore these variables below. The `elastic_config` array will be output as is
-# into the `/etc/elasticsearch/elasticsearch.yml` file. The default
-# configuration can be found in the `vars/main.yml` file of this role. For what
-# these settings do, consult the elastic search documentation.
+# variables below (also the variables in the `Cluster formation` section) are
+# used by the default configuration and you don't need to set them again. You
+# could include that info directly in `elastic_config` and ignore these
+# variables below. The `elastic_config` array will be output as is into the
+# `/etc/elasticsearch/elasticsearch.yml` file. The default configuration can be
+# found in the `vars/main.yml` file of this role. For what these settings do,
+# consult the elastic search documentation.
 
 elastic_bind_host: localhost
 # The address where elastic will listen on for requests to its JSON api.
@@ -170,27 +180,30 @@ elastic_transport_host: "{{ elastic_bind_host }}"
 
 elastic_transport_port: 9300
 # The port that elastic search will use to communicate with other nodes.
-
+# }}}
+# Cluster formation {{{
 elastic_cluster_name: elasticsearch
 # The name of the cluster the node will belong to.
+
+elastic_discovery_type: single-node
+# The peer discovery type. `single-node` will add this node to a single-node
+# cluster and disregard other cluster formation settings. `zen` will try to
+# discover other peers and add the node to a cluster.
+
+elastic_discovery_seed_providers:
+  - settings
+# What method to use to discover master-eligible nodes that will seed the
+# discovery process.
+
+elastic_discovery_seed_hosts:
+  - 127.0.0.1
+# The list of master-eligible hosts. This is used by the `settings` seed
+# provider.
 
 elastic_cluster_initial_master_nodes:
   - "{{ elastic_node_name }}"
 # The list of initial master-eligible nodes that will be used to bootstrap the
 # cluster. This is just added into the `elastic_config` and not used further.
-
-elastic_discovery_seed_hosts:
-  - 127.0.0.1
-# The list of master-eligible hosts.
-
-elastic_node_name: "{{ inventory_hostname }}"
-# The name of the node
-
-elastic_master_node: true
-elastic_data_node: true
-elastic_ingest_node: true
-# Whether the provisioned node will be act as a master and/or data and/or ingest
-# node.
 # }}}
 # Plugins {{{
 elastic_plugins: []

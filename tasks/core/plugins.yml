@@ -70,7 +70,7 @@
       plugin:
         mandatory: "{{ elastic_plugins
                        | select('mapping')
-                       | selectattr('mandatory', 'true')
+                       | selectattr('mandatory')
                        | map(attribute='name')
                        | join(',')
                      }}"

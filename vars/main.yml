@@ -7,18 +7,26 @@ _elastic_config_defaults:
     port: "{{ elastic_bind_port }}"
   transport:
     host: "{{ elastic_transport_host }}"
-  cluster:
-    name: "{{ elastic_cluster_name }}"
-    initial_master_nodes: "{{ elastic_cluster_initial_master_nodes }}"
+  cluster: >-
+    {% if elastic_discovery_type == 'single-node' -%}
+      {{ {"name": elastic_cluster_name} }}
+    {% else -%}
+      {{
+        {
+          "name": elastic_cluster_name,
+          "initial_master_nodes": elastic_cluster_initial_master_nodes
+        }
+      }}
+    {%- endif %}
   node:
     name: "{{ elastic_node_name }}"
     master: "{{ elastic_master_node }}"
     data: "{{ elastic_data_node }}"
     ingest: "{{ elastic_ingest_node }}"
   discovery:
-    seed_providers:
-      - settings
+    seed_providers: "{{ elastic_discovery_seed_providers }}"
     seed_hosts: "{{ elastic_discovery_seed_hosts }}"
+    type: "{{ elastic_discovery_type }}"
   path:
     data: /var/lib/elasticsearch
     logs: /var/log/elasticsearch

@@ -2,11 +2,11 @@
 
 - name: Create GCP credentials keystore setting path
   set_fact:
-    _elastic_gpc_credentials:
+    _elastic_gcp_credentials:
       "gcs.client.{{ elastic_plugin_gcs_credentials.name }}.credentials_file"
 
 - name: Remove existing GCP credentials
-  command: bin/elasticsearch-keystore remove "{{ _elastic_gpc_credentials }}"
+  command: bin/elasticsearch-keystore remove "{{ _elastic_gcp_credentials }}"
   when: elastic_plugin_gcs_refresh_credentials | bool
   register: _result
   failed_when:
@@ -35,15 +35,20 @@
         }}
 
     - name: Add GCP credentials to keystore
-      command: bin/elasticsearch-keystore add-file "{{ _elastic_gpc_credentials }}" /tmp/auth.json
+      command: bin/elasticsearch-keystore add-file "{{ _elastic_gcp_credentials }}" /tmp/auth.json
       args:
         chdir: /usr/share/elasticsearch/
-      when: _elastic_keystore_settings.stdout is not search(_elastic_gpc_credentials)
-      notify: elastic reload settings
+      when: _elastic_keystore_settings.stdout is not search(_elastic_gcp_credentials)
+      notify: elastic-reload-settings
+      register: _elastic__result
   when:
-    _elastic_keystore_settings.stdout is not search('gcs.client.' + elastic_plugin_gcs_credentials.name + 'credentials_file')
+    _elastic_keystore_settings.stdout is not search(_elastic_gcp_credentials)
 
 - name: Delete GCP credentials file
   file:
     path: /tmp/auth.json
     state: absent
+
+- name: Reload secure settings for new GCP client to take effect
+  meta: flush_handlers
+  when: _elastic__result is changed
