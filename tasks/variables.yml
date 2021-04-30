@@ -8,8 +8,8 @@
   set_fact:
     elastic_node_address: >-
       http{{ elastic_ssl_http | ternary('s', '') }}://{{
-        elastic_bind_host[0] }}:{{
-        elastic_bind_port }}
+        elastic_config.http.host[0] }}:{{
+        elastic_config.http.port }}
 
 - name: Check if elasticsearch already installed
   stat:
@@ -30,7 +30,22 @@
         elastic_major_version | string
       }}{{
         '.' + elastic_minor_version | string if elastic_minor_version != '*'
+                                             else ''
       }}{{
         '.' + elastic_patch_version | string if elastic_minor_version != '*'
                                              and elastic_patch_version != '*'
+                                             else ''
       }}
+
+- name: Check if elasticsearch is already running
+  block:
+    - name: Read existing services
+      service_facts: ~
+      register: _elasticsearch__services
+    - name: Register elasticsearch service status
+      set_fact:
+        _elasticsearch__new_cluster: >-
+          {{
+            'elasticsearch.service' in _elasticsearch__services.ansible_facts.services.keys()
+            and _elasticsearch__services.ansible_facts.services['elasticsearch.service'].state == 'running'
+          }}

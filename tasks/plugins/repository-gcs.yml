@@ -48,7 +48,3 @@
   file:
     path: /tmp/auth.json
     state: absent
-
-- name: Reload secure settings for new GCP client to take effect
-  meta: flush_handlers
-  when: _elastic__result is changed

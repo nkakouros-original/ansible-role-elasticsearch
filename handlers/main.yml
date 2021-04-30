@@ -25,7 +25,7 @@
       listen: elastic-restart-service
   rescue:
     - name: Get elasticsearch log
-      command: tail -n 150 /var/log/elasticsearch/{{ elastic_cluster_name }}.log
+      command: tail -n 150 /var/log/elasticsearch/{{ elastic_config.cluster.name }}.log
       register: _elasticsearch_log
     - name: Print the log
       debug:

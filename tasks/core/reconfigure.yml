@@ -1,0 +1,14 @@
+---
+
+- name: Create elasticsearch.yml
+  copy:
+    content: >-
+      {{
+        elastic_final_config
+        | to_nice_yaml(indent=2, explicit_start=True)
+      }}
+    dest: /etc/elasticsearch/elasticsearch.yml
+    owner: "{{ elastic_user }}"
+    group: "{{ elastic_group }}"
+    mode: 0o660
+  notify: elastic-restart-service

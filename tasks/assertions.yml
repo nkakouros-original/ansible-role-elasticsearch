@@ -18,6 +18,7 @@
     msg: >-
       either `elastic_builtin_users_password_backup_file` must be set
       or `elastic_users` must contain a custom password for the `elastic` user
+  when: elastic_combined_config.xpack.security.enabled | d(false) | bool
 
 - name: Check GCP credentials
   assert:

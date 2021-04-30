@@ -4,10 +4,21 @@
   set_fact:
     elastic_combined_config: >-
       {{
-        _elastic_config_defaults
-        | combine(elastic_combined_config, recursive=True)
+        elastic_combined_config
         | combine(elastic_config, recursive=True)
       }}
+
+- name: Store final configuration in variable
+  set_fact:
+    elastic_final_config: "{{ elastic_combined_config }}"
+
+- name: Add one time configuration
+  set_fact:
+    elastic_combined_config:
+      "{{ elastic_combined_config | combine(elastic_config_initial_overrides) }}"
+  when:
+    - elastic_config_initial_overrides is not none
+    - not _elasticsearch__new_cluster | bool
 
 - name: Create elasticsearch.yml
   copy:

@@ -38,16 +38,21 @@
 
 - include_tasks: indexes.yml
 
+# Need to run before importing pipelines as a pipeline may use a stored script.
+- include_tasks: stored-scripts.yml
+
 - include_tasks: pipelines.yml
 
 - include_tasks: snapshots.yml
 
-- include_tasks: stored-scripts.yml
-
 - include_tasks: core/roles.yml
 
 - include_tasks: realms/native.yml
-  when: elastic_combined_config.xpack.security.enabled | d(false) | bool
+  when:
+    - elastic_combined_config.xpack.security.enabled | d(false) | bool
 
 - include_tasks: cluster-info.yml
   when: elastic_cluster_uuid_backup is not none
+
+- include_tasks: core/reconfigure.yml
+  when: not _elasticsearch__new_cluster | bool
