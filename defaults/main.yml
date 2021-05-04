@@ -368,6 +368,21 @@ elastic_stored_scripts: []
 #     lang: painless
 #     source: "ctx.agent.type == 'packetbeat'"
 
+elastic_api_requests: []
+# A list of arbitrary API requests to perform. The previous variables are
+# provided for convenience. You could replace them with this variable here. The
+# format of this variable is for example:
+# ```yaml
+# elastic_api_requests:
+#   - name: just-a-name-for-your-documentation-not-used-by-the-role
+#     path: "_scripts/my-script"
+#     method: PUT
+#     body:
+#       script:
+#         lang: painless
+#         source: ...
+#   ```
+
 elastic_cluster_uuid_backup: ~
 # Set to a file on the controller where you would like the cluster uuid to be
 # stored. The cluster uuid is useful when e.g. setting up beats monitoring and

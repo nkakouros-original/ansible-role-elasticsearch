@@ -51,6 +51,8 @@
   when:
     - elastic_combined_config.xpack.security.enabled | d(false) | bool
 
+- include_tasks: api.yml
+
 - include_tasks: cluster-info.yml
   when: elastic_cluster_uuid_backup is not none
 

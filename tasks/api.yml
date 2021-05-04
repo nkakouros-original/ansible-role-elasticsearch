@@ -1,0 +1,22 @@
+---
+
+- name: Make other API requests
+  uri:
+    url: "{{ elastic_node_address }}/{{ _elasticsearch__request.path }}"
+    method: "{{ _elasticsearch__request.method | d('PUT') }}"
+    body: "{{ _elasticsearch__request.body }}"
+    body_format: json
+    headers:
+      Content-Type: application/json
+    force_basic_auth: true
+    url_username: "{{ _elastic_elastic_user['name'] }}"
+    url_password: "{{ _elastic_elastic_user['pass'] }}"
+    validate_certs: false
+    return_content: false
+  register: _result
+  failed_when:
+    - _result is failed
+    - _result.json.error.reason | d('') is not contains('already exists')
+  loop: "{{ elastic_api_requests }}"
+  loop_control:
+    loop_var: _elasticsearch__request
