@@ -8,7 +8,6 @@ lint: |
   set -e
   yamllint --config-file molecule/default/yamllint.yml .
   ansible-lint -c molecule/default/ansible-lint.yml .
-  flake8
 platforms:
   - name: "${MOLECULE_INSTANCE_NAME:-systemd-ubuntu-18.04}"
     image: "${MOLECULE_DISTRO:-jrei/systemd-ubuntu:18.04}"
@@ -27,7 +26,4 @@ provisioner:
 scenario:
   name: default
 verifier:
-  name: testinfra
-  enabled: false
-  lint:
-    name: flake8
+  name: ansible
