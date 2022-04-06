@@ -19,12 +19,12 @@ jobs:
     strategy:
       matrix:
         distro:
-          - image: jrei/systemd-ubuntu:16.04
-            instance: systemd-ubuntu-16.04
-          - image: jrei/systemd-ubuntu:18.04
-            instance: systemd-ubuntu-18.04
-          - image: jrei/systemd-ubuntu:20.04
-            instance: systemd-ubuntu-20.04
+            #- image: jrei/systemd-ubuntu:16.04
+            #  instance: systemd-ubuntu-16.04
+            - image: jrei/systemd-ubuntu:18.04
+              instance: systemd-ubuntu-18.04
+            #- image: jrei/systemd-ubuntu:20.04
+            #  instance: systemd-ubuntu-20.04
             # - image: jrei/systemd-centos:7
             #   instance: systemd-centos-7
             # - image: jrei/systemd-centos:8
