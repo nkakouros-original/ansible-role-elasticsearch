@@ -17,6 +17,7 @@
   failed_when:
     - _result is failed
     - _result.json.error.reason | d('') is not contains('already exists')
+  no_log: "{{ lookup('ansible.builtin.env', 'MOLECULE_FILE') is falsy }}"
   loop: "{{ elastic_api_requests }}"
   loop_control:
     loop_var: _elasticsearch__request

@@ -15,6 +15,7 @@
     url_password: "{{ _elastic_elastic_user['pass'] }}"
     validate_certs: false
     return_content: false
+  no_log: "{{ lookup('ansible.builtin.env', 'MOLECULE_FILE') is falsy }}"
   loop: "{{ elastic_snapshot_repositories }}"
   loop_control:
     loop_var: _elasticsearch__repo
@@ -37,6 +38,7 @@
     url_password: "{{ _elastic_elastic_user['pass'] }}"
     validate_certs: false
     return_content: false
+  no_log: "{{ lookup('ansible.builtin.env', 'MOLECULE_FILE') is falsy }}"
   loop: "{{ elastic_snapshot_policies }}"
   loop_control:
     loop_var: _elasticsearch__policy
@@ -53,6 +55,7 @@
     validate_certs: false
     return_content: false
   when: elastic_snapshot_policy_enable | bool
+  no_log: "{{ lookup('ansible.builtin.env', 'MOLECULE_FILE') is falsy }}"
 
 - name: Stop SLM policy
   uri:
@@ -66,3 +69,4 @@
     validate_certs: false
     return_content: false
   when: not elastic_snapshot_policy_enable | bool
+  no_log: "{{ lookup('ansible.builtin.env', 'MOLECULE_FILE') is falsy }}"

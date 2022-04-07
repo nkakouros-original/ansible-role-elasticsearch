@@ -16,6 +16,7 @@
     url_password: "{{ _elastic_elastic_user['pass'] }}"
     validate_certs: false
     return_content: false
+  no_log: "{{ lookup('ansible.builtin.env', 'MOLECULE_FILE') is falsy }}"
   loop: "{{ elastic_stored_scripts }}"
   loop_control:
     loop_var: _elasticsearch__script

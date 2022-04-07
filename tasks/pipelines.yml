@@ -29,6 +29,7 @@
     url_password: "{{ _elastic_elastic_user['pass'] }}"
     validate_certs: false
     return_content: true
+  no_log: "{{ lookup('ansible.builtin.env', 'MOLECULE_FILE') is falsy }}"
   loop: "{{ _elastic_pipelines | d([]) }}"
   loop_control:
     loop_var: _elasticsearch__pipeline
