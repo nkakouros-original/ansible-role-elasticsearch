@@ -30,11 +30,16 @@
 - name: Run pending handlers now
   meta: flush_handlers
 
+- include_tasks: plugins/repository-gcs.yml
+  when: elastic_plugin_gcs_enabled | bool
+
 - include_tasks: core/builtin-users.yml
   when: elastic_combined_config.xpack.security.enabled | d(false) | bool
 
-- include_tasks: plugins/repository-gcs.yml
-  when: elastic_plugin_gcs_enabled | bool
+
+# API calls
+
+- meta: flush_handlers
 
 - include_tasks: indexes.yml
 

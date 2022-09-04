@@ -4,7 +4,7 @@
   set_fact:
     _elastic_pipelines: "{{ (_elastic_pipelines | d([]))
                             + (
-                                (lookup('file', _elasticsearch__pipeline.src)
+                                (lookup('template', _elasticsearch__pipeline.src)
                                  | from_yaml
                                 ).pipelines
                                 if 'src' in _elasticsearch__pipeline
