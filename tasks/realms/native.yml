@@ -36,6 +36,7 @@
     - _result is failed
     - _result.json.error.reason is not contains("is reserved and only the password can be changed;")
   when: _elasticsearch__user.name not in _elastic_builtin_users
+  no_log: "{{ lookup('ansible.builtin.env', 'MOLECULE_FILE') is falsy }}"
   loop: "{{ elastic_users }}"
   loop_control:
     loop_var: _elasticsearch__user
@@ -54,6 +55,7 @@
     url_password: "{{ _elastic_elastic_user['pass'] }}"
     validate_certs: false
     return_content: true
+  no_log: "{{ lookup('ansible.builtin.env', 'MOLECULE_FILE') is falsy }}"
   loop: "{{
       elastic_users
       | rejectattr('name', 'equalto', 'elastic')
@@ -75,3 +77,4 @@
         | list
         | first
       }}
+  no_log: "{{ lookup('ansible.builtin.env', 'MOLECULE_FILE') is falsy }}"

@@ -27,6 +27,7 @@
     - name: Get elasticsearch log
       command: tail -n 150 /var/log/elasticsearch/{{ elastic_config.cluster.name }}.log
       register: _elasticsearch_log
+      changed_when: false
     - name: Print the log
       debug:
         var: _elasticsearch_log
@@ -45,6 +46,7 @@
     url_username: "{{ _elastic_elastic_user['name'] }}"
     url_password: "{{ _elastic_elastic_user['pass'] }}"
     validate_certs: false
+  no_log: "{{ lookup('ansible.builtin.env', 'MOLECULE_FILE') is falsy }}"
   listen: elastic-reload-settings
   # **Some** settings stored in the keystore are reloadable. This means that ES
   # does not have to be restarted. Instead, the above call will make the

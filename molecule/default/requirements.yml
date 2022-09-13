@@ -1,10 +1,6 @@
 ---
 
-# - src: reallyenglish.apt-repo
-- src: https://github.com/nkakouros/ansible-role-apt-repo
-  scm: git
-  version: patch-1
-  name: reallyenglish.apt-repo
+- src: trombik.apt_repo
 - src: geerlingguy.java
 - src: geerlingguy.git
 - src: nkakouros.easyrsa

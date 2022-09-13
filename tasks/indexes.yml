@@ -14,6 +14,7 @@
     validate_certs: false
     return_content: true
   when: _elasticsearch__template.file is defined
+  no_log: "{{ lookup('ansible.builtin.env', 'MOLECULE_FILE') is falsy }}"
   loop: "{{ elastic_index_templates }}"
   loop_control:
     loop_var: _elasticsearch__template
@@ -33,6 +34,7 @@
         return_content: true
       register: _existing_templates
       when: _elasticsearch__template.overrides is defined
+      no_log: "{{ lookup('ansible.builtin.env', 'MOLECULE_FILE') is falsy }}"
       loop: "{{ elastic_index_templates }}"
       loop_control:
         loop_var: _elasticsearch__template
@@ -52,6 +54,7 @@
         validate_certs: false
         return_content: false
       when: _elasticsearch__template.overrides is defined
+      no_log: "{{ lookup('ansible.builtin.env', 'MOLECULE_FILE') is falsy }}"
       loop: "{{ elastic_index_templates }}"
       loop_control:
         loop_var: _elasticsearch__template
