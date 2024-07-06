@@ -1,5 +1,4 @@
 ---
-
 dependency:
   name: galaxy
 driver:
@@ -18,6 +17,7 @@ platforms:
       - '9200:9200/tcp'
     command: /lib/systemd/systemd
     privileged: true
+    pre_build_image: true
 provisioner:
   name: ansible
   options:
@@ -29,5 +29,3 @@ scenario:
 verifier:
   name: testinfra
   enabled: false
-  lint:
-    name: flake8
