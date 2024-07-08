@@ -175,7 +175,8 @@ elastic_config:
     logs: /var/log/elasticsearch
   xpack:
     security:
-      enabled: true
+      hide_settings: 'xpack.security.authc.realms.native.*'
+      enabled: false
 # Elastic configuration in the form of a yaml array with non-collapsed keys.
 # The `elastic_config` array will be output as is into the
 # `/etc/elasticsearch/elasticsearch.yml` file. For what these settings do,
