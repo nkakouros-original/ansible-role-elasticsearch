@@ -28,5 +28,8 @@ provisioner:
     IN_MOLECULE: 'true'
 scenario:
   name: default
+  create_sequence:
+    - create
+    - prepare
 verifier:
   name: ansible
