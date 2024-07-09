@@ -1,7 +1,7 @@
 ---
 name: CI
 
-on:  # yamllint disable-line rule:truthy
+on: # yamllint disable-line rule:truthy
   push:
     branches:
       - master
@@ -44,7 +44,7 @@ jobs:
         run: pip3 install ansible molecule molecule-docker
 
       - name: Check Docker and if it is running
-        run: systemctl status docker && systemctl start docker
+        run: systemctl status docker
 
       - name: Check docker
         run: docker --version && docker ps -a
