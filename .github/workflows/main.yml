@@ -40,14 +40,8 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Install molecule
+      - name: Install dependencies
         run: pip3 install ansible molecule molecule-docker
-
-      - name: Check Docker and if it is running
-        run: systemctl status docker
-
-      - name: Check docker
-        run: docker --version && docker ps -a
 
       - name: Run molecule dependency
         run: molecule dependency
@@ -55,10 +49,10 @@ jobs:
           MOLECULE_DISTRO: ${{ matrix.distro.image }}
           MOLECULE_INSTANCE_NAME: ${{ matrix.distro.instance }}
 
-      - name: Install ansible 7.5 , and compatible versions of requests and urllib3
+      - name: Install specific versions of Ansible, requests, and urllib3
         run: pip3 install ansible==7.5 && pip3 install --force-reinstall 'requests<2.29.0' 'urllib3<2.0'
 
-      - name: Run molecule
+      - name: Run molecule create
         run: molecule create
         env:
           MOLECULE_DISTRO: ${{ matrix.distro.image }}
