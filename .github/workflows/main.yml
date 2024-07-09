@@ -56,7 +56,7 @@ jobs:
           MOLECULE_INSTANCE_NAME: ${{ matrix.distro.instance }}
 
       - name: Install ansible 7.5 , and compatible versions of requests and urllib3
-        run: pip3 install ansible==7.5 requests<2.29.0 urllib3<2.0
+        run: pip3 install ansible==7.5 && pip3 install --force-reinstall 'requests<2.29.0' 'urllib3<2.0'
 
       - name: Run molecule
         run: molecule create
