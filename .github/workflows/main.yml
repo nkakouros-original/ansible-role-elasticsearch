@@ -1,5 +1,4 @@
 ---
-
 name: CI
 
 on:  # yamllint disable-line rule:truthy
@@ -19,9 +18,9 @@ jobs:
     strategy:
       matrix:
         distro:
-         # - image: jrei/systemd-ubuntu:16.04
-         #   instance: systemd-ubuntu-16.04
-         # - image: jrei/systemd-ubuntu:18.04
+          # - image: jrei/systemd-ubuntu:16.04
+          #   instance: systemd-ubuntu-16.04
+          # - image: jrei/systemd-ubuntu:18.04
           #  instance: systemd-ubuntu-18.04
           - image: jrei/systemd-ubuntu:20.04
             instance: systemd-ubuntu-20.04
@@ -43,6 +42,12 @@ jobs:
 
       - name: Install molecule
         run: pip3 install ansible molecule molecule-docker
+
+      - name: Check Docker and if it is running
+        run: systemctl status docker && systemctl start docker
+
+      - name: Check docker
+        run: docker --version && docker ps -a
 
       - name: Run molecule dependency
         run: molecule dependency
