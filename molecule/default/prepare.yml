@@ -37,7 +37,7 @@
 
     easyrsa_download: []
     easyrsa_download_pki: true
-    easyrsa_download_dir: '~/'
+    easyrsa_download_dir: '~'
   pre_tasks:
     - name: Install packages required by ansible modules
       package:
@@ -49,3 +49,11 @@
         packages:
           - gnupg
           - software-properties-common
+
+    - name: Install sudo
+      raw: apt install -y sudo
+
+    - name: Ensure /etc/easyrsa/pki directory exists
+      file:
+        path: /etc/easyrsa/pki
+        state: directory

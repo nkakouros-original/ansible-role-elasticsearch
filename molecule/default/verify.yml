@@ -1,0 +1,142 @@
+---
+
+- name: Verify
+  hosts: all
+  vars:
+    role_path: ../../
+  vars_files:
+    - "{{ role_path }}/defaults/main.yml"
+    - converge-vars.yml
+  pre_tasks:
+    - import_tasks: "{{ role_path }}/tasks/variables.yml"
+    - import_tasks: "{{ role_path }}/tasks/core/version.yml"
+    - import_tasks: "{{ role_path }}/tasks/certificates/keystore.yml"
+      when:
+        - elastic_certificates_password != None
+        - elastic_certificates != None
+  tasks:
+    - name: Check elastic group
+      command: getent group {{ elastic_group }}
+      register: _result
+      failed_when: _result.rc != 0
+
+    - name: Check elastic user
+      command: id -nG {{ elastic_user }}
+      register: _result
+      failed_when: "'{{ elastic_group }}' not in _result.stdout"
+      when: elastic_user != 'root'
+
+    - name: Tasks specific to Debian systems
+      block:
+        - name: Check that apt-transport-https is installed
+          command: dpkg -s apt-transport-https
+          register: _result
+          failed_when: "'installed' not in _result.stdout"
+
+        - name: Check Elasticsearch Signing Key
+          command: apt-key finger
+          register: _result
+          failed_when: "'4609 5ACC 8548 582C 1A26  99A9 D27D 666C D88E 42B4' not in _result.stdout"
+
+        - name: Check that the Elastic repository is added
+          command: grep -r 'https://artifacts.elastic.co/packages/' /etc/apt/sources.list.d/
+          register: _result
+          failed_when: "'https://artifacts.elastic.co/packages/' not in _result.stdout"
+
+        - name: Check if dependencies are installed
+          command: dpkg -s {{ item }}
+          register: _result
+          failed_when: "'installed' not in _result.stdout"
+          loop:
+            - unzip
+
+        - name: Check Elasticsearch installation
+          command: dpkg -s elasticsearch
+          register: _result
+          failed_when: "'Version: ' + elastic_major_version|string + '.' + (elastic_minor_version|string if elastic_minor_version != '*' else '[0-9]+') not in _result.stdout"
+
+        - name: Check if automatic updates are disabled
+          command: cat /etc/apt/apt.conf.d/55elasticsearch-disable
+          register: _result
+          failed_when: "'elasticsearch' not in _result.stdout"
+          when: elastic_disable_auto_update | bool
+      when: ansible_os_family == 'Debian'
+
+    - name: Tasks specific to certificates
+      block:
+        - name: Check that the certificates directory exists and has correct permissions
+          stat:
+            path: "{{ elastic_certificates_dir }}"
+          register: _result
+          failed_when: "not _result.stat.exists or not _result.stat.isdir or _result.stat.mode != '0750' or _result.stat.pw_name != elastic_user or _result.stat.gr_name != elastic_group"
+
+        - name: Check that the certificates are uploaded and have correct permissions
+          stat:
+            path: "{{ elastic_certificates_dir }}/{{ item.value | basename }}"
+          register: _result
+          failed_when: "not _result.stat.exists or not _result.stat.isreg or (_result.stat.mode != '0400' if item.key == 'key' else _result.stat.mode != '0640') or _result.stat.pw_name != (elastic_group if item.key == 'key' else elastic_user) or _result.stat.gr_name != elastic_group"
+          loop: "{{ elastic_certificates | dict2items }}"
+          loop_control:
+            loop_var: item
+
+        - name: Check that certificates password is in elastic keystore
+          shell: /usr/share/elasticsearch/bin/elasticsearch-keystore list
+          register: _result
+          failed_when: "_elasticsearch__passname not in _result.stdout"
+          loop:
+            - xpack.security.transport.ssl.secure_key_passphrase
+            - xpack.security.http.ssl.secure_key_passphrase
+          loop_control:
+            loop_var: _elasticsearch__passname
+          when: 
+            - elastic_certificates_password != None
+            - _elastic_keystore_settings.stdout is not search(_elasticsearch__passname)
+      when: elastic_certificates != None
+
+    - name: Check that elasticsearch.yml exists and has correct permissions
+      stat:
+        path: /etc/elasticsearch/elasticsearch.yml
+      register: _result
+      failed_when: "not _result.stat.exists or not _result.stat.isreg or _result.stat.mode != '0660' or _result.stat.pw_name != elastic_user or _result.stat.gr_name != elastic_group"
+
+    - name: Check that minimum heap size for JVM is correct
+      command: grep -Fx -- "-Xms{{ elastic_jvm_min_heap_size }}" /etc/elasticsearch/jvm.options
+      register: _result
+      failed_when: _result.rc != 0
+
+    - name: Check that maximum heap size for JVM is correct
+      command: grep -Fx -- "-Xmx{{ elastic_jvm_max_heap_size }}" /etc/elasticsearch/jvm.options
+      register: _result
+      failed_when: _result.rc != 0
+
+    - name: Check custom JVM configuration is correct
+      command: grep -Fx -- "{{ elastic_jvm_extra_config }}" /etc/elasticsearch/jvm.options
+      register: _result
+      failed_when: _result.rc != 0
+      when: elastic_jvm_extra_config != None
+
+    - name: Check that the systemd override file exists and has correct permissions
+      stat:
+        path: "/etc/systemd/system/elasticsearch.service.d/override.conf"
+      register: _result
+      failed_when: not _result.stat.exists or not _result.stat.isreg or _result.stat.mode != '0644' or _result.stat.gr_name != 'root' or _result.stat.pw_name != 'root'
+      when: elastic_systemd_override != None
+
+
+    - name: Check that SLM policy is started
+      uri:
+        url: "{{ elastic_node_address }}/_slm/status"
+        method: GET
+        headers:
+          Content-Type: application/json
+        force_basic_auth: true
+        url_username: "{{ _elastic_elastic_user['name'] }}"
+        url_password: "{{ _elastic_elastic_user['pass'] }}"
+        validate_certs: false
+        return_content: true
+      register: _result
+      failed_when: "_result.json.operation_mode != 'RUNNING'"
+      when: elastic_snapshot_policy_enable | bool
+
+
+

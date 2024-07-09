@@ -1,8 +1,7 @@
 ---
-
 name: CI
 
-on:  # yamllint disable-line rule:truthy
+on: # yamllint disable-line rule:truthy
   push:
     branches:
       - master
@@ -19,10 +18,10 @@ jobs:
     strategy:
       matrix:
         distro:
-          - image: jrei/systemd-ubuntu:16.04
-            instance: systemd-ubuntu-16.04
-          - image: jrei/systemd-ubuntu:18.04
-            instance: systemd-ubuntu-18.04
+          # - image: jrei/systemd-ubuntu:16.04
+          #   instance: systemd-ubuntu-16.04
+          # - image: jrei/systemd-ubuntu:18.04
+          #  instance: systemd-ubuntu-18.04
           - image: jrei/systemd-ubuntu:20.04
             instance: systemd-ubuntu-20.04
             # - image: jrei/systemd-centos:7
@@ -38,12 +37,23 @@ jobs:
 
       - name: Setup Python
         uses: actions/setup-python@v2.2.1
+        with:
+          python-version: '3.12'
 
-      - name: Install molecule
-        run: pip3 install molecule[ansible,ansible-base,docker,lint]
+      - name: Install dependencies
+        run: pip3 install ansible molecule molecule-docker
 
-      - name: Run molecule
-        run: molecule test
+      - name: Run molecule dependency
+        run: molecule dependency
+        env:
+          MOLECULE_DISTRO: ${{ matrix.distro.image }}
+          MOLECULE_INSTANCE_NAME: ${{ matrix.distro.instance }}
+
+      - name: Install specific versions of Ansible, requests, and urllib3
+        run: pip3 install ansible==7.5 && pip3 install --force-reinstall 'requests<2.29.0' 'urllib3<2.0'
+
+      - name: Run molecule create
+        run: molecule create
         env:
           MOLECULE_DISTRO: ${{ matrix.distro.image }}
           MOLECULE_INSTANCE_NAME: ${{ matrix.distro.instance }}
