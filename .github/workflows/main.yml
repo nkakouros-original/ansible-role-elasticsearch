@@ -55,6 +55,9 @@ jobs:
           MOLECULE_DISTRO: ${{ matrix.distro.image }}
           MOLECULE_INSTANCE_NAME: ${{ matrix.distro.instance }}
 
+      - name: Install ansible 7.5 and downgrade requests
+        run: pip3 install ansible==7.5 requests==2.31.0
+        
       - name: Run molecule
         run: molecule create
         env:
