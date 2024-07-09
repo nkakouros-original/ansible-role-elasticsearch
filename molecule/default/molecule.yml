@@ -18,6 +18,8 @@ platforms:
     command: /lib/systemd/systemd
     privileged: true
     pre_build_image: true
+    options:  
+      memory: "4g"
 provisioner:
   name: ansible
   options:
