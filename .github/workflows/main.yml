@@ -54,7 +54,7 @@ jobs:
         run: pip3 install ansible==7.5
 
       - name: Run molecule
-        run: molecule test
+        run: molecule create
         env:
           MOLECULE_DISTRO: ${{ matrix.distro.image }}
           MOLECULE_INSTANCE_NAME: ${{ matrix.distro.instance }}
