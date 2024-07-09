@@ -4,15 +4,15 @@ elastic_enabled: true
 # Set to false to completely disable the role
 
 # Installation{{{
-elastic_major_version: 7
+elastic_major_version: 8
 # The major version of elasticsearch to install. This will also be used to add
 # the relevant repository.
 
-elastic_minor_version: 12
+elastic_minor_version: 14
 # The minor version of elasticsearch to install. Set to `'*'` to install the
 # latest minor version for the `elastic_major_version`.
 
-elastic_patch_version: '*'
+elastic_patch_version: 2
 # The patch version of elasticsearch to install. Set to `'*'` to install the
 # latest patch version. If `elastic_minor_version` is set to `'*'` this is
 # effectively ignored.
@@ -161,9 +161,7 @@ elastic_config:
     name: elasticsearch
   node:
     name: "{{ inventory_hostname }}"
-    master: true
-    data: true
-    ingest: true
+    roles: [ master, data, ingest ]
   discovery:
     seed_providers:
       - settings
@@ -177,6 +175,8 @@ elastic_config:
     security:
       hide_settings: 'xpack.security.authc.realms.native.*'
       enabled: false
+      transport.ssl.enabled: false
+      http.ssl.enabled: false
 # Elastic configuration in the form of a yaml array with non-collapsed keys.
 # The `elastic_config` array will be output as is into the
 # `/etc/elasticsearch/elasticsearch.yml` file. For what these settings do,
